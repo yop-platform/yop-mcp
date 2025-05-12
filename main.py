@@ -1,10 +1,11 @@
 from mcp.server.fastmcp import FastMCP
-from typing import Optional
+from tools.cert_key_parser import parse_certificates
+from tools.cert_utils import download_cert, gen_key_pair
 from tools.http_utils import HttpUtils
 from tools.api_md_utils import ApiMdUtils
-from pathlib import Path
 import json
 import os
+from typing import Dict, Any
 
 # 获取当前脚本的绝对路径，并推导项目根目录
 current_dir = os.path.dirname(os.path.abspath(__file__))  # [6,7](@ref)
@@ -104,6 +105,63 @@ def yeepay_yop_java_sdk_user_guide():
         return read_file("/Users/yp-21022/Develop/Cursor/yop-mcp-server/docs/sdks/yop-java-sdk-user-guide.md")
 
 
+@mcp.tool()
+def yeepay_yop_gen_key_pair(algorithm="RSA", format="pkcs8", storage_type="file"):
+    """
+    根据密钥算法生成非对称加密的密钥对（公钥和私钥），并保存到本地路径
+    
+    参数:
+        algorithm: 密钥算法，可选值为 "RSA" 或 "SM2"，默认为 "RSA"
+        format: 密钥格式，可选值为 "pkcs8"或"pkcs1"，默认为 "pkcs8"
+        storage_type: 密钥存储类型，"file"或"string"，默认为 "file"
+    """
+    return gen_key_pair(algorithm=algorithm, format=format, storage_type=storage_type)
+
+
+@mcp.tool()
+def yeepay_yop_download_cert(algorithm: str = "RSA", serial_no: str = "", auth_code: str = "", 
+                 private_key: str = "", public_key: str = "", pwd: str = "") -> Dict[str, Any]:
+    """
+    根据密钥算法、CFCA证书的序列号、授权码、非对称密钥对（公钥和私钥）、密码，下载该证书，并保存到本地路径
+    
+    Args:
+        algorithm: 密钥算法，可选值为 "RSA" 或 "SM2"，默认为 "RSA"
+        serial_no: cfca证书序列号
+        auth_code: cfca证书授权码
+        private_key: Base64 编码后的私钥字符串
+        public_key: Base64 编码后的公钥字符串
+        pwd: 密码，长度：12~16位
+        
+    Returns:
+        Dict包含:
+        - message: 响应信息
+        - pfxCert: 私钥证书路径(.pfx)
+        - pubCert: 公钥证书路径(.cer)
+    """
+    return download_cert(algorithm=algorithm, serial_no=serial_no, auth_code=auth_code, private_key=private_key, public_key=public_key, pwd=pwd)
+
+@mcp.tool()
+def yeepay_yop_parse_certificates(algorithm="RSA", pfxCert=None, pubCert=None, pwd=None):
+    """
+    根据证书文件解析出Base64编码后的公钥或私钥字符串
+    
+    Args:
+        algorithm (str): 密钥算法，可选值为 "RSA" 或 "SM2"，默认为 "RSA"
+        pfxCert (str): 私钥证书（.pfx）文件路径
+        pubCert (str): 公钥证书（.cer）文件路径
+        pwd (str, optional): PFX证书的密码，默认为None
+    
+    Returns:
+        dict: 包含解析结果的字典，格式如下:
+            {
+                'message': 响应信息,
+                'privateKey': Base64编码后的私钥字符串,
+                'publicKey': Base64编码后的公钥字符串
+            }
+    """
+    return parse_certificates(algorithm=algorithm, pfxCert=pfxCert, pubCert=pubCert, pwd=pwd)
+
+
 # -------------------------------------------------官方示例------------------------------------------
 # Add an addition tool
 # @mcp.tool()
@@ -126,3 +184,12 @@ def yeepay_yop_java_sdk_user_guide():
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
+    # 生成密钥对
+    # print(yeepay_yop_gen_key_pair(algorithm="SM2", format="pkcs8", storage_type="file"))
+
+    # 下载证书
+    # serial_no = "4928999747"
+    # auth_code = "64NPRSS6AR"
+    # private_key = "MIGEAgEAMBAGByqGSM49AgEGBSuBBAAKBG0wawIBAQQgDQKlS7bO/Kk5ki6EX2jc7fwpBZdQSfLLkydhhpfNJp+hRANCAASvzBZG6h3rpDOLy9Fx5yW3Pa6Od3CngeFK5f8uUlPHrtxLmNl0CHBserrsk/fFJanzIKpEEIisR7AOykJ2wqgr"
+    # public_key = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEr8wWRuod66Qzi8vRcecltz2ujndwp4HhSuX/LlJTx67cS5jZdAhwbHq67JP3xSWp8yCqRBCIrEewDspCdsKoKw=="
+    # print(yeepay_yop_download_cert(algorithm="SM2", serial_no=serial_no, auth_code=auth_code, private_key=private_key, public_key=public_key, pwd="qwertyuiop[]"))
