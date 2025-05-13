@@ -4,13 +4,14 @@ import os
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography import x509
 from cryptography.x509.oid import NameOID
-from typing import Dict, Any, Tuple, Optional
+from typing import Dict, Any, List, Tuple, Optional, Union
 from cryptography.hazmat.primitives.asymmetric import rsa, padding, ec
 from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurvePublicKey
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives.serialization import pkcs12, Encoding, PublicFormat, PrivateFormat, BestAvailableEncryption, NoEncryption
-import http_utils
-import json_utils
+from http_utils import HttpUtils
+from json_utils import JsonUtils
+from config import Config
 
 class KeyType(Enum):
     RSA2048 = "RSA"
@@ -22,9 +23,9 @@ class CheckResult:
         self.msg = msg
 
 class CertDownloadResult:
-    def __init__(self):
+    def __init__(self, error_msg: str = None):
         self.cert = None
-        self.error_msg = None
+        self.error_msg = error_msg
     
     def with_cert(self, cert):
         self.cert = cert
@@ -111,34 +112,117 @@ class CertUtils:
     def makePfxCert(pri_key: str, cert: str, key_type: KeyType, pwd: str, serial_no: str, cert_path: str) -> str:
         """生成PFX私钥证书文件"""
         try:
-            os.makedirs(cert_path, exist_ok=True)
-            pfx_cert_path = os.path.join(cert_path, f"{serial_no}.pfx")
+            private_key = CertUtils.string2_private_key(pri_key, key_type)
+            cert_bytes = cert.encode()
+
+            if not os.path.exists(cert_path):
+                os.makedirs(cert_path)
+
+            pri_cert_path = os.path.join(cert_path, f"{serial_no}.pfx")
             
-            # 加载私钥和证书
-            private_key = CertUtils.load_private_key(pri_key, key_type)
-            certificate = x509.load_pem_x509_certificate(cert.encode('utf-8'))
-            
-            if key_type == KeyType.RSA2048:
-                # 创建PKCS12对象
+            if not os.path.exists(pri_cert_path):
+                certificate = CertUtils.get_x509_certificate(cert_bytes)
+                alias = f"{{{serial_no}}}"
+                cfca_certificate = CertUtils.load_cert_chain(key_type)
+                
+                # 创建PKCS12格式的密钥存储
                 pfx_data = pkcs12.serialize_key_and_certificates(
-                    name=serial_no.encode('utf-8'),
+                    name=alias.encode(),
                     key=private_key,
                     cert=certificate,
-                    cas=None,
-                    encryption_algorithm=BestAvailableEncryption(pwd.encode('utf-8'))
+                    cas=cfca_certificate,
+                    encryption_algorithm=serialization.BestAvailableEncryption(pwd.encode())
                 )
                 
-                # 写入PFX文件
-                with open(pfx_cert_path, 'wb') as f:
-                    f.write(pfx_data)
-            elif key_type == KeyType.SM2:
-                # SM2 PFX生成需要特殊处理
-                # 这里是简化实现
-                pass  # 实际实现需要更换
-                
-            return pfx_cert_path
+                # 保存PFX文件
+                with open(pri_cert_path, 'wb') as pfx_file:
+                    pfx_file.write(pfx_data)
+
         except Exception as e:
-            raise Exception(f"生成PFX证书文件失败: {str(e)}")
+            raise RuntimeError(str(e))
+    
+    @staticmethod
+    def string2_private_key(pri_key: str, key_type: KeyType) -> Union[rsa.RSAPrivateKey, ec.EllipticCurvePrivateKey]:
+        """
+        将私钥字符串转换为私钥对象
+        
+        Args:
+            pri_key: Base64编码的私钥字符串
+            key_type: 密钥类型
+            
+        Returns:
+            私钥对象
+        """
+        try:
+            # 解码Base64私钥
+            key_bytes = base64.b64decode(pri_key)
+            # 使用PKCS8格式加载私钥
+            private_key = serialization.load_der_private_key(
+                key_bytes,
+                password=None,
+                backend=default_backend()
+            )
+            return private_key
+        except Exception as e:
+            raise RuntimeError("No such algorithm.") from e
+
+    @staticmethod
+    def get_x509_certificate(cert_bytes: bytes):
+        return x509.load_pem_x509_certificate(cert_bytes, default_backend())
+
+    @staticmethod
+    def load_cert_chain(key_type: KeyType) -> List[any]:
+        """
+        加载证书链
+        
+        Args:
+            key_type: 密钥类型
+            
+        Returns:
+            证书链列表
+        """
+        try:
+            qa_host_path = os.path.join(Config.QA_HOST_PATH, "qa_host.txt")
+            
+            if not os.path.exists(qa_host_path):
+                if key_type == KeyType.SM2:
+                    root_cert_name = "config/CFCA_SM2_ACS_CA.pem"
+                    middle_cert_name = "config/CFCA_SM2_ACS_OCA31.pem"
+                elif key_type == KeyType.RSA2048:
+                    root_cert_name = "config/CFCA_RSA_ACS_CA.pem"
+                    middle_cert_name = "config/CFCA_RSA_ACS_OCA31.pem"
+                else:
+                    raise Exception("unsupported alg")
+            else:
+                if key_type == KeyType.SM2:
+                    root_cert_name = "config/CFCA_SM2_ACS_TEST_SM2_CA.cer"
+                    middle_cert_name = "config/CFCA_SM2_ACS_TEST_SM2_OCA31.cer"
+                elif key_type == KeyType.RSA2048:
+                    root_cert_name = "config/CFCA_RSA_ACS_TEST_CA.cer"
+                    middle_cert_name = "config/CFCA_RSA_ACS_TEST_OCA31.cer"
+                else:
+                    raise Exception("unsupported alg")
+                    
+            # 加载证书文件 - 使用项目根目录的相对路径
+            project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+            root_cert_path = os.path.join(project_root, root_cert_name)
+            middle_cert_path = os.path.join(project_root, middle_cert_name)
+            
+            certs = []
+            for cert_path in [root_cert_path, middle_cert_path]:
+                with open(cert_path, 'rb') as cert_file:
+                    cert_data = cert_file.read()
+                    if cert_path.endswith('.pem'):
+                        cert = x509.load_pem_x509_certificate(cert_data, default_backend())
+                    else:  # .cer file
+                        cert = x509.load_der_x509_certificate(cert_data, default_backend())
+                    certs.append(cert)
+                    
+            return certs
+            
+        except Exception as e:
+            raise Exception("Failed to load certificate chain") from e
+
     
     @staticmethod
     def check_input(serial_no: str, auth_code: str, key_type: KeyType, 
@@ -306,17 +390,6 @@ class CertUtils:
         
         return [private_key_b64, public_key_b64]
         
-
-class Config:
-    RSA_CERT_SAVE_PATH = "./certs/rsa/"
-    SM2_CERT_SAVE_PATH = "./certs/sm2/"
-    HOST = "https://mp.yeepay.com"
-    # CFCA API相关配置
-    CFCA_CERT_DOWNLOAD_URL = HOST + "/yop-developer-center/apis/cfca/cert/download"
-    BASIC = "keytools:keytools"
-    TOOLS_VERSION = "mcp"
-
-
 class SupportUtil:
     @staticmethod
     def is_file_exists(file_path: str) -> bool:
@@ -510,18 +583,18 @@ def gen_key_pair(algorithm="RSA", format="pkcs8", storage_type="file"):
 
 def main():
     # 下载证书
-    # serial_no = "4923287028"
-    # auth_code = "XYPAPJJHYL"
-    # private_key = "MIIEvAIBADANBgkqhkiG9w0BAQEFAASCBKYwggSiAgEAAoIBAQDxSZYgdThDnpB8UiQGJfb1aDgyEBpqS1kwSWVVOAsv/pqzK8B2H9l+n7LXYlqAQ36QY+64StMnMEXZQXTafsg1QEThbc1mRWK7lc1xHOKmUIm3EiUB0MWG9wlk7smAZBjqCII+ds23yiA0QFn0kw8xQN56nFS4H33TqJk+iwZwLjR4tW9BYqSK0QA4pReQeJaz6UX97Je3FNplQJhn8I/TEGp9tjondYZdrWekA+Iv5YXdvYp/pB+8KZg76mlNWAOU6ckXCHnFjc6Qr+KqDYLGFaAEZ/ZVMHG82wneqZpHl8zIVj+hyRm9aypw6Hy/tgF4lAt+Ulz5idsU+y1JdAm7AgMBAAECggEAakU3Pl9yYvHVADRrUlvpO6flzELkZ3l9NDO3UkPHRaG1AAHemAgqEkeDDLLwWjqf5TdmXjvyaPmtYeUe8tbRFgcS71idlRQtSqJNZCrNNmQVa5CtxPFu9iUauZ4kGIy9nmIV/y3zKCX5bhoDpKEamV5RPp5Y/+k60XyZ1f6EXOZZydS3wDpU+TQwwulP8vzAG5HfkYse5IT/04iqirFh9dQr/LZgj4jeLg2KDQE7j2lAIZr0WA4MbS3F57BX0fNiBEi89yn5/0U1EBboPoS/sMW7a0n0J46MfupRBUC8oOYSerWqZmPYolo73DIT+bOfL8pl5PzjGOiuweOvVcBlqQKBgQDxvuPzfhcyr4enEO8LzigUJ+SumLEnaHA51gWDQpxXZbij3ZZY31ayivYWH+MIBJOwmvTsmSH7TdYnzovondb+Hy9a1OdiTLPqhAw8FzOtaeoDXxPnzvD91tlZcPxvi0E+xjyzPBaIH8zlX/54PJq/nOyGIzMrMMh5Xb8FTQlXwwKBgQD/g8d95FTCh2f/+whh/WubwRqJXGbBblHbvgGP1jRjXDYP2WSd8cWv+ISztGimneHuou11jPse1AHunJOnmIbn/bXX27XUCMRalxN+uKjdne4xM6n+YNUCub9U6arlw7chcKD1sbvj00t1MuskeT9ojMgIeyd+wFzhgAMzpjreqQKBgF+ONep8b80AJx25itPexGbbMgB1qKjMFng2Ce3NeaDuO2LCZvhwJ4Phe85ZAlOcA4juZ1vSV+VO6hTIBvOG2IGQcBZ2S5PGf+N2GKP0A+BLGk4E2ghp+0ZLE5TQHWg14i9fCoVKfhmGgGY2YI7EXeLZs4B+D27GFKgsjyIYRlYjAoGAFzWgLFZOQLFOCBmEZGpBmQ9MWsfS6aUcuGok+CzL626X1o63rgUlINvhKfWsP949hJC2IyRgNyeo2UTNwL6BGpeYKfhiJtV5CIWKlsstQ5wx47Q+r8WZ87ptn8ft5xsFCnuRk1/GomYyB35Nj62XzeZj0SlmqAPPLAiVwd5KoKkCgYASuRLpWGeqB3Y3ksm7dAH0F1Fll5NPc6rf81ak1DeM1P49QkTC5Ce3mazkrVr3Wa86YvePp5usgpwEvh+YkW/gldK5FffmcUNmHhvjtoXed5ekrIBUOMyW7A6remdaq4rcsKJIUWqblaDnI6QbsZqKKTh9cYf/NGOVbwN0hm8nDg=="
-    # public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA8UmWIHU4Q56QfFIkBiX29Wg4MhAaaktZMEllVTgLL/6asyvAdh/Zfp+y12JagEN+kGPuuErTJzBF2UF02n7INUBE4W3NZkViu5XNcRziplCJtxIlAdDFhvcJZO7JgGQY6giCPnbNt8ogNEBZ9JMPMUDeepxUuB9906iZPosGcC40eLVvQWKkitEAOKUXkHiWs+lF/eyXtxTaZUCYZ/CP0xBqfbY6J3WGXa1npAPiL+WF3b2Kf6QfvCmYO+ppTVgDlOnJFwh5xY3OkK/iqg2CxhWgBGf2VTBxvNsJ3qmaR5fMyFY/ockZvWsqcOh8v7YBeJQLflJc+YnbFPstSXQJuwIDAQAB"
-    # print(download_cert(algorithm="RSA", serial_no=serial_no, auth_code=auth_code, private_key=private_key, public_key=public_key, pwd="qwertyuiop[]"))
+    serial_no = "4931008761"
+    auth_code = "A396G3AY47"
+    private_key = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCj0pMOyEt0orX/+GPNMCueo/dZJC/KUqTtHHFXQB6Kc/vCQJSvWGPpIQEFiA68zzvjnhg3oKwT2vG9Gp2vmDC2V/zuCu2HyCi/mobMX/Mzch7O3beA/0A4d0ZzpyUKLRoq6PUb7jLqY+rnowFCNK4g8oLNA+sipJr3a1FFze9sBJKLFcPknSt7FtElgYIsXaXyHWJLHChusb99oZ8JZzZuA/DMRTdQUjf7fZoAq8gcXTtanZC6/2J07BAG8f0ZLc8qeEixApFE48xZ3p0N6brGq2eycs3tUMgcEiuvHRIB3p9TPFbLOdGR6D3dTz6EC87ImgchtVLA4VOuuEEsTZxFAgMBAAECggEAClijNvzJXy1jhy39x5iyOIusdHHHnuSHS/5O3i7Lfv0COmtvuH9BmBigguPr4lrIMoDqkKDSHVLnj4TdzpgzA2EdNT91buziPe+ZcdDhgC9F6NSx4TC9spM93NICkdj1XR5nVIM/rfPvgv+VdcPz91q5jg8gS4jPzK53bIwsActSIthwjmeT9QAUy7Nu3CTkLQTf1oJ5sV7AG+mJ28a1/l4Y/VBUWfplgNeahdcZ3Y5W3bc3yg82wD0aDyy+an+KVq9Kk3Jy/bUMBCzlujb7GAJRS/7Z6TLcRpSUYKnqKpD42IjOsAnZYYnouXxVbRbvUrn/8yVlapSP3wJ5LtRHIQKBgQDiT9jtMcf4W/99ekuIMp4w5FDQvxnr3y40aaxEl+qmiFHoznOlBN9cPNFR/yyCW14+nfF73GBpMcM1M96jSIkVhrWngSYBJ4LUtdOejb/iyl2hJrkIlxmfxUFXImdB1Dz6dbDvNo8/mTgeyykuBVycn33N3jsokjhNZ8TUYwGuKQKBgQC5UCtfNnFZrjYUSQomyBjfoNCo10L7UVOUUIgzdTloD4A4JdD5QdDHoOqK1sgWxMGa8pnN6ONUlntIh9DDUTvWI5ESNFAyVuXHIteaLACxo4XLGnfILcd83JuUVWXJ9qM6BJgCJ7bKasjYabnE8vD6w2hhxEpxb4r/v1pVJADIvQKBgFy1Nvkb3n44ObZORejaS4Fd1lldH6JHf+cKrv4+eWqVB3DmOeuMzm87nsgHT1VrVnUyQH1r7rbJIt2FjRu4mCeQUpP2zPnGFMtMXQ9jpAqkuaxNb5k8RMv1g2nNdx05c21qjvu/jvkPrDS5JvpqSeEDWQbflb5t/9B9xNz4XfTZAoGBAKtXiQK8IAo/nhkbf5tkIDuFQekbP/+HrrPP0l9h3/Zrfq5rqNEPHa+3BaXh+ZezzR8reTJ+RtOLX+osScaOcbkJobUnUY958XMysA8I6ItXGvo0OtSIH48/m0qHu1oGBd47KSG0/roiChqvhuiniFEUJIthJ0PDUs4ta6SVaXQxAoGAHBwLgpLtqU94IgkPe2/+p8R17l2BfbqwF6NUwxvjAM8uEd43eymGgfvHfUS580h7MDiNdrcXSntvlyokVejdJTufaCu6itNjVztYbwaJqkJ8vFHidlMvXKVtuvE8YAKrPm9CtwtQSm3zuwx2BNPE5AxXHcXiloks5kh7iNPaBN8="
+    public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAo9KTDshLdKK1//hjzTArnqP3WSQvylKk7RxxV0AeinP7wkCUr1hj6SEBBYgOvM87454YN6CsE9rxvRqdr5gwtlf87grth8gov5qGzF/zM3Iezt23gP9AOHdGc6clCi0aKuj1G+4y6mPq56MBQjSuIPKCzQPrIqSa92tRRc3vbASSixXD5J0rexbRJYGCLF2l8h1iSxwobrG/faGfCWc2bgPwzEU3UFI3+32aAKvIHF07Wp2Quv9idOwQBvH9GS3PKnhIsQKRROPMWd6dDem6xqtnsnLN7VDIHBIrrx0SAd6fUzxWyznRkeg93U8+hAvOyJoHIbVSwOFTrrhBLE2cRQIDAQAB"
+    print(download_cert(algorithm="RSA", serial_no=serial_no, auth_code=auth_code, private_key=private_key, public_key=public_key, pwd="1234567891234"))
     
     # 生成密钥对
     # private_key, public_key = CertUtils.generate_key()
     # print(f"私钥(Base64): {private_key}")
     # print(f"公钥(Base64): {public_key}") 
 
-    print(gen_key_pair(algorithm="RSA", format="pkcs8", storage_type="string"))
+    # print(gen_key_pair(algorithm="RSA", format="pkcs8", storage_type="string"))
 
 
 if __name__ == '__main__':

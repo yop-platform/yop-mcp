@@ -11,12 +11,9 @@ class JsonUtils:
             return None
     
     @staticmethod
-    def json_to_pojo(json_data: str, bean_type) -> Optional[Any]:
-        try:
-            return json.loads(json_data)
-        except Exception as e:
-            print(e)
-            return None
+    def json_to_pojo(json_str: str, cls: type) -> Any:
+        """将JSON字符串转换为Python对象"""
+        return json.loads(json_str)
     
     @staticmethod
     def json_to_list(json_data: str, bean_type) -> Optional[List]:
