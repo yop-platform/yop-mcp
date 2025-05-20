@@ -1,99 +1,145 @@
 from mcp.server.fastmcp import FastMCP
-from typing import Optional
+from tools.cert_key_parser import parse_certificates
+from tools.cert_utils import download_cert, gen_key_pair
 from tools.http_utils import HttpUtils
-from tools.api_md_utils import ApiMdUtils
-from pathlib import Path
+from typing import Dict, Any
 import json
 import os
 
-# 获取当前脚本的绝对路径，并推导项目根目录
-current_dir = os.path.dirname(os.path.abspath(__file__))  # [6,7](@ref)
-project_root = os.path.dirname(current_dir)  # 假设项目根目录是当前目录的上级
-# file_path = os.path.join(project_root, "data", "config.json")  # 动态拼接路径
-
-def read_file(file_path):
-    with open(file_path, 'r', encoding='utf-8') as file:
-        return file.read()
 
 
 # Create an MCP server
-mcp = FastMCP("yop-mcp-server")
-
-# api_ext_info = ""
-api_ext_info = read_file("/Users/yp-21022/Develop/Cursor/yop-mcp-server/docs/ext/api_ext.md")
-
-
+mcp = FastMCP("yop-mcp")
 
 @mcp.tool()
-def yeepay_open_platform_overview():
+def yeepay_yop_overview():
     """
-    通过此工具，可以快速了解易宝支付开放平台(YOP)的平台规范，产品介绍，API概览信息
+    通过此工具，可以了解易宝支付开放平台(YOP)的平台规范，接入流程，网站地图，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
 
     Returns:
         str: 易宝支付开放平台(YOP)的概览信息(markdown格式)
     """
 
-    return HttpUtils.download_content("https://open.yeepay.com/apis/docs/llms.txt")
+    return HttpUtils.download_content("https://open.yeepay.com/docs-v3/llms.txt")
 
-# @mcp.tool()
-# def open_yepay_com_llms_txt(path: Optional[any] = "/"):
-#     """
-#     获取open.yeepay.com网站的的llms.txt文件
-    
-#     Args:
-#         path: Optional[str] = "/" - 指定要获取的文件路径，默认为根目录"/"
-    
-#     Returns:
-#         str: 文件内容
-#     """
-
-#     # 判断path是否为字符串类型
-#     if isinstance(path, str):
-#         # 简单检查是否匹配URL格式（以http://或https://开头）
-#         if path.startswith("http://") or path.startswith("https://"):
-#             print(f"检测到URL: {path}")
-    
-#     # 这里我们直接返回本地文件，实际应用中可能需要从网站获取
-#     return read_file("./docs/llms.txt")
 
 @mcp.tool()
-def yeepay_products_and_apis():
+def yeepay_yop_product_overview():
     """
-    通过此工具，获取易宝支付开放平台(YOP)的产品能力，以及相关的API能力信息
+    通过此工具，获取易宝支付开放平台(YOP)的产品能力概览，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
 
     Returns:
-        str: 易宝支付开放平台(YOP)产品能力，以及相关的API能力信息(markdown格式)
+        str: 易宝支付开放平台(YOP)的产品能力概览(markdown格式)
     """
 
-    # https://open.yeepay.com/apis/docs/apis/docking-product-tree.json
-    return HttpUtils.download_content("https://open.yeepay.com/apis/docs/apis/docking-product-tree.json")
+    return HttpUtils.download_content("https://open.yeepay.com/docs-v3/product/llms.txt")
+
 
 @mcp.tool()
-def yeepay_yop_api_definition(apiId: str):
+def yeepay_yop_product_detail_and_associated_apis(product_code: str):
     """
-    通过此工具，获取易宝支付(YOP)的API详细定义，包含认证方式、入参、出参、对接示例等信息
+    通过此工具，获取易宝支付开放平台(YOP)指定产品的产品介绍，使用说明、相关的API接口列表，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
 
     Args:
-        apiId: str - API唯一标识
-    
+        product_code: str - 产品编码(产品的唯一标识)
+
     Returns:
-        str: API详细定义，包含认证方式、入参、出参、对接示例等信息(markdown格式)
-        
+        str: 易宝支付开放平台(YOP)指定产品的产品介绍，使用说明、相关的API接口列表(markdown格式)
     """
 
-    # https://open.yeepay.com/apis/docs/apis/dac023730d434d61bcada629810beb99/definition.json
-    return ApiMdUtils.convert_data_to_markdown(json.loads(
-        HttpUtils.download_content("https://open.yeepay.com/apis/docs/apis/"+apiId+"/definition.json"))
-        ) + "\n\n" + api_ext_info
+    product_code = product_code.strip()
+    # https://open.yeepay.com/docs-v3/product/user-scan/llms.txt
+    response = HttpUtils.download_content("https://open.yeepay.com/docs-v3/product/"+product_code+"/llms.txt")
+    # 如果返回错误，则调用备用地址
+    if response.startswith("HTTP请求失败"):
+        return HttpUtils.download_content("https://open.yeepay.com/docs-v3/product/llms.txt")
+    return response
 
+@mcp.tool()
+def yeepay_yop_api_detail(api_uri: str):
+    """
+    通过此工具，获取易宝支付开放平台(YOP)的API接口的详细定义，包含基本信息、请求参数、请求示例、响应参数、响应示例、错误码、回调、示例代码等信息，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
+
+    Args:
+        api_uri: str - API的URI路径， 例如：/rest/v1.0/aggpay/pre-pay, https://open.yeepay.com/docs-v3/api/post_rest_v1.0_aggpay_pre-pay.md, https://open.yeepay.com/docs-v2/apis/user-scan/post__rest__v1.0__aggpay__pre-pay/index.html
+    
+    Returns:
+        str: 易宝支付开放平台(YOP)的API接口的详细定义，包含基本信息、请求参数、请求示例、响应参数、响应示例、错误码、回调、示例代码等信息(markdown格式)
+
+    """
+
+    api_uri = api_uri.strip()
+    response = "HTTP请求失败"
+
+    if api_uri.startswith("http"):
+        if api_uri.endswith(".md"):
+            response = HttpUtils.download_content(api_uri)
+        elif api_uri.endswith(".html"):
+            url_parts = api_uri.split("/")
+            for part in url_parts:
+                if part.startswith("post__") or part.startswith("get__") or part.startswith("options__"):
+                    apiId = part.replace("__", "_")
+                    response = HttpUtils.download_content("https://open.yeepay.com/docs-v3/api/"+apiId+".md")
+                    break
+
+    if response.startswith("HTTP请求失败") and "_" in api_uri:
+        response = HttpUtils.download_content("https://open.yeepay.com/docs-v3/api/"+api_uri+".md")
+    
+    formatted_api_uri = api_uri.replace("/", "_")
+    if response.startswith("HTTP请求失败"):
+        response = HttpUtils.download_content("https://open.yeepay.com/docs-v3/api/"+formatted_api_uri+".md")
+    if response.startswith("HTTP请求失败"):
+        response = HttpUtils.download_content("https://open.yeepay.com/docs-v3/api/post"+formatted_api_uri+".md")
+    if response.startswith("HTTP请求失败"):
+        response = HttpUtils.download_content("https://open.yeepay.com/docs-v3/api/get"+formatted_api_uri+".md")
+    if response.startswith("HTTP请求失败"):
+        response = HttpUtils.download_content("https://open.yeepay.com/docs-v3/api/options"+formatted_api_uri+".md")
+
+    return response
+
+
+@mcp.tool()
+def yeepay_yop_sdk_and_tools_guide():
+    """
+    通过此工具，获取易宝支付开放平台(YOP)提供的各种SDK和工具的使用说明，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
+
+    Returns:
+        str: 易宝支付开放平台(YOP)提供的各种SDK和工具的使用说明，以及对接最佳实践等(markdown格式)
+
+    """
+    try:
+        return HttpUtils.download_content("https://open.yeepay.com/docs-v3/platform/llms.txt")
+    except Exception:
+        return "HTTP请求失败, url: https://open.yeepay.com/docs-v3/platform/llms.txt"
+
+@mcp.tool()
+def yeepay_yop_link_detail(url: str):
+    """
+    通过此工具，获取易宝支付开放平台(YOP)的各个子页面或者外部链接的详细内容，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
+
+    Args:
+        url: str - 易宝支付开放平台(YOP)的子页面的URL地址
+
+    Returns:
+        str: 易宝支付开放平台(YOP)的各个子页面的详细内容
+        
+    """
+    try:
+        if url.startswith("http") :
+            return HttpUtils.download_content(url)
+        else:
+            url = ("https://open.yeepay.com/" + url).replace("//", "/")
+            return HttpUtils.download_content(url)
+    except Exception:
+        return "HTTP请求失败, url: " + url
 
 @mcp.tool()
 def yeepay_yop_java_sdk_user_guide():
     """
-    通过此工具，获取易宝支付(YOP)的yop-java-sdk使用说明
+    通过此工具，获取易宝支付开放平台(YOP)的yop-java-sdk的使用说明，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
     
     Returns:
-        str: yop-java-sdk使用说明(markdown格式)
+        str: 易宝支付开放平台(YOP)的yop-java-sdk的使用说明(markdown格式)
         
     """
     try:
@@ -101,7 +147,64 @@ def yeepay_yop_java_sdk_user_guide():
         platform_version = platform_info.get("data").get("docVersion")
         return HttpUtils.download_content("https://open.yeepay.com/apis/docs/platform/"+platform_version+"/sdk_guide/java-sdk-guide.html")
     except Exception:
-        return read_file("/Users/yp-21022/Develop/Cursor/yop-mcp-server/docs/sdks/yop-java-sdk-user-guide.md")
+        return HttpUtils.download_content("https://open.yeepay.com/docs-v3/platform/201.md")
+
+
+@mcp.tool()
+def yeepay_yop_gen_key_pair(algorithm="RSA", format="pkcs8", storage_type="file"):
+    """
+    根据密钥算法生成非对称加密的密钥对（公钥和私钥），并保存到本地路径
+
+    参数:
+        algorithm: 密钥算法，可选值为 "RSA" 或 "SM2"，默认为 "RSA"
+        format: 密钥格式，可选值为 "pkcs8"或"pkcs1"，默认为 "pkcs8"
+        storage_type: 密钥存储类型，"file"或"string"，默认为 "file"
+    """
+    return gen_key_pair(algorithm=algorithm, format=format, storage_type=storage_type)
+
+
+@mcp.tool()
+def yeepay_yop_download_cert(algorithm: str = "RSA", serial_no: str = "", auth_code: str = "",
+                 private_key: str = "", public_key: str = "", pwd: str = "") -> Dict[str, Any]:
+    """
+    根据密钥算法、CFCA证书的序列号、授权码、非对称密钥对（公钥和私钥）、密码，下载该证书，并保存到本地路径
+
+    Args:
+        algorithm: 密钥算法，可选值为 "RSA" 或 "SM2"，默认为 "RSA"
+        serial_no: cfca证书序列号
+        auth_code: cfca证书授权码
+        private_key: Base64 编码后的私钥字符串
+        public_key: Base64 编码后的公钥字符串
+        pwd: 密码，长度：12~16位
+
+    Returns:
+        Dict包含:
+        - message: 响应信息
+        - pfxCert: 私钥证书路径(.pfx)
+        - pubCert: 公钥证书路径(.cer)
+    """
+    return download_cert(algorithm=algorithm, serial_no=serial_no, auth_code=auth_code, private_key=private_key, public_key=public_key, pwd=pwd)
+
+@mcp.tool()
+def yeepay_yop_parse_certificates(algorithm="RSA", pfxCert=None, pubCert=None, pwd=None):
+    """
+    根据证书文件解析出Base64编码后的公钥或私钥字符串
+
+    Args:
+        algorithm (str): 密钥算法，可选值为 "RSA" 或 "SM2"，默认为 "RSA"
+        pfxCert (str): 私钥证书（.pfx）文件路径
+        pubCert (str): 公钥证书（.cer）文件路径
+        pwd (str, optional): PFX证书的密码，默认为None
+
+    Returns:
+        dict: 包含解析结果的字典，格式如下:
+            {
+                'message': 响应信息,
+                'privateKey': Base64编码后的私钥字符串,
+                'publicKey': Base64编码后的公钥字符串
+            }
+    """
+    return parse_certificates(algorithm=algorithm, pfxCert=pfxCert, pubCert=pubCert, pwd=pwd)
 
 
 # -------------------------------------------------官方示例------------------------------------------
@@ -126,3 +229,12 @@ def yeepay_yop_java_sdk_user_guide():
 
 if __name__ == "__main__":
     mcp.run(transport="stdio")
+    # 生成密钥对
+    # print(yeepay_yop_gen_key_pair(algorithm="SM2", format="pkcs8", storage_type="file"))
+
+    # 下载证书
+    # serial_no = "4928999747"
+    # auth_code = "64NPRSS6AR"
+    # private_key = "MIGEAgEAMBAGByqGSM49AgEGBSuBBAAKBG0wawIBAQQgDQKlS7bO/Kk5ki6EX2jc7fwpBZdQSfLLkydhhpfNJp+hRANCAASvzBZG6h3rpDOLy9Fx5yW3Pa6Od3CngeFK5f8uUlPHrtxLmNl0CHBserrsk/fFJanzIKpEEIisR7AOykJ2wqgr"
+    # public_key = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEr8wWRuod66Qzi8vRcecltz2ujndwp4HhSuX/LlJTx67cS5jZdAhwbHq67JP3xSWp8yCqRBCIrEewDspCdsKoKw=="
+    # print(yeepay_yop_download_cert(algorithm="SM2", serial_no=serial_no, auth_code=auth_code, private_key=private_key, public_key=public_key, pwd="qwertyuiop[]"))
