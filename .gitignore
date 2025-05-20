@@ -11,3 +11,4 @@ wheels/
 .cursor
 .vscode
 uv.lock
+.idea

@@ -3,7 +3,9 @@
 
 import httpx
 from pathlib import Path
-from typing import Union, Optional
+from typing import Any, Dict, Union, Optional
+import urllib.parse
+import urllib.request
 
 
 class HttpUtils:
@@ -30,10 +32,10 @@ class HttpUtils:
             return content
         except httpx.HTTPStatusError as e:
             print(f"HTTP错误 {e.response.status_code}")
-            return f"错误: HTTP {e.response.status_code}"
+            return f"HTTP请求失败: HTTP {e.response.status_code}"
         except Exception as e:
             print(f"请求失败：{str(e)}")
-            return f"错误: {str(e)}"
+            return f"HTTP请求失败: {str(e)}"
     
     @staticmethod
     def download_file(url: str, save_path: str, timeout: Optional[int] = None) -> str:
@@ -92,10 +94,10 @@ class HttpUtils:
                     return response.text
         except httpx.HTTPStatusError as e:
             print(f"HTTP错误 {e.response.status_code}")
-            return f"错误: HTTP {e.response.status_code}"
+            return f"HTTP请求失败: HTTP {e.response.status_code}"
         except Exception as e:
             print(f"请求失败：{str(e)}")
-            return f"错误: {str(e)}"
+            return f"HTTP请求失败: {str(e)}"
     
     @staticmethod
     def get_json(url: str, params: Optional[dict] = None, headers: Optional[dict] = None, timeout: Optional[int] = None) -> Union[dict, str]:
@@ -122,11 +124,30 @@ class HttpUtils:
                     return response.text
         except httpx.HTTPStatusError as e:
             print(f"HTTP错误 {e.response.status_code}")
-            return f"错误: HTTP {e.response.status_code}"
+            return f"HTTP请求失败: HTTP {e.response.status_code}"
         except Exception as e:
             print(f"请求失败：{str(e)}")
-            return f"错误: {str(e)}"
+            return f"HTTP请求失败: {str(e)}"
 
+    @staticmethod
+    def get_response(get_url: str, request_param: Dict[Any, Any], request_header: Dict[Any, Any]) -> str:
+        param = ""
+        if request_param is not None:
+            param_list = []
+            for key, value in request_param.items():
+                param_list.append(f"{key}={urllib.parse.quote(str(value), encoding='utf-8')}")
+            param = "&".join(param_list)
+        
+        full_url = f"{get_url}?{param}"
+        
+        req = urllib.request.Request(full_url)
+        if request_header is not None:
+            for key, value in request_header.items():
+                req.add_header(str(key), str(value))
+        
+        with urllib.request.urlopen(req) as response:
+            response_data = response.read().decode('utf-8')
+            return response_data
 
 # 为了兼容性，保留原始函数名称
 def sync_download(url: str, timeout: Optional[int] = None) -> str:

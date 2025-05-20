@@ -2,91 +2,148 @@
 
 快速对接YOP的MCP Server
 
-## Getting started
+## 简介
 
-To make it easy for you to get started with GitLab, here's a list of recommended next steps.
+yop-mcp 是一个快速对接易宝支付开放平台(YOP)的 MCP Server，提供了一系列工具函数，帮助开发者更便捷地获取 YOP 平台的相关信息。
 
-Already a pro? Just edit this README.md and make it your own. Want to make it easy? [Use the template at the bottom](#editing-this-readme)!
+## 功能特点
 
-## Add your files
+该 MCP Server 提供以下工具函数：
 
-- [ ] [Create](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#create-a-file) or [upload](https://docs.gitlab.com/ee/user/project/repository/web_editor.html#upload-a-file) files
-- [ ] [Add files using the command line](https://docs.gitlab.com/ee/gitlab-basics/add-file.html#add-a-file-using-the-command-line) or push an existing Git repository with the following command:
+1. **yeepay_yop_overview()** - 获取易宝支付开放平台(YOP)的平台规范、产品概览、接入流程和对接工具信息
+2. **yeepay_yop_product_overview()** - 获取易宝支付开放平台(YOP)的所有产品的概览信息
+3. **yeepay_yop_product_detail_and_associated_apis(product_code)** - 获取指定产品的介绍、使用说明和相关 API 接口列表
+4. **yeepay_yop_api_detail(api_uri)** - 获取指定 API 接口的详细定义，包括基本信息、请求参数、响应参数、示例代码等
+5. **yeepay_yop_java_sdk_user_guide()** - 获取易宝支付开放平台(YOP)的 yop-java-sdk 使用说明
 
+## 环境安装
+
+### 前置条件
+
+- Python 3.13 或更高版本
+- pip 或 uv 包管理工具
+
+### 安装步骤
+
+1. 克隆仓库到本地：
+```bash
+git clone http://gitlab.yeepay.com/yop/yop-mcp.git
+cd yop-mcp
 ```
-cd existing_repo
-git remote add origin http://gitlab.yeepay.com/yop/yop-mcp.git
-git branch -M master
-git push -uf origin master
+
+2. 使用 uv 安装依赖：
+```bash
+uv venv
+uv pip install
 ```
 
-## Integrate with your tools
+或使用 pip 安装依赖：
+```bash
+python -m venv .venv
+source .venv/bin/activate  # 在 Windows 上使用 .venv\Scripts\activate
+pip install
+```
 
-- [ ] [Set up project integrations](http://gitlab.yeepay.com/yop/yop-mcp/-/settings/integrations)
+## 使用方法
 
-## Collaborate with your team
+### 启动服务器
 
-- [ ] [Invite team members and collaborators](https://docs.gitlab.com/ee/user/project/members/)
-- [ ] [Create a new merge request](https://docs.gitlab.com/ee/user/project/merge_requests/creating_merge_requests.html)
-- [ ] [Automatically close issues from merge requests](https://docs.gitlab.com/ee/user/project/issues/managing_issues.html#closing-issues-automatically)
-- [ ] [Enable merge request approvals](https://docs.gitlab.com/ee/user/project/merge_requests/approvals/)
-- [ ] [Automatically merge when pipeline succeeds](https://docs.gitlab.com/ee/user/project/merge_requests/merge_when_pipeline_succeeds.html)
+```bash
+python main.py
+```
 
-## Test and Deploy
+### 工具函数说明
 
-Use the built-in continuous integration in GitLab.
+#### 1. yeepay_yop_overview()
 
-- [ ] [Get started with GitLab CI/CD](https://docs.gitlab.com/ee/ci/quick_start/index.html)
-- [ ] [Analyze your code for known vulnerabilities with Static Application Security Testing(SAST)](https://docs.gitlab.com/ee/user/application_security/sast/)
-- [ ] [Deploy to Kubernetes, Amazon EC2, or Amazon ECS using Auto Deploy](https://docs.gitlab.com/ee/topics/autodevops/requirements.html)
-- [ ] [Use pull-based deployments for improved Kubernetes management](https://docs.gitlab.com/ee/user/clusters/agent/)
-- [ ] [Set up protected environments](https://docs.gitlab.com/ee/ci/environments/protected_environments.html)
+获取易宝支付开放平台(YOP)的概览信息，包括平台规范、产品概览、接入流程和对接工具等信息。
 
-***
+**示例调用：**
+```
+yeepay_yop_overview()
+```
 
-# Editing this README
+**返回：** YOP 平台概览信息（markdown 格式）
 
-When you're ready to make this README your own, just edit this file and use the handy template below (or feel free to structure it however you want - this is just a starting point!). Thank you to [makeareadme.com](https://www.makeareadme.com/) for this template.
+#### 2. yeepay_yop_product_overview()
 
-## Suggestions for a good README
-Every project is different, so consider which of these sections apply to yours. The sections used in the template are suggestions for most open source projects. Also keep in mind that while a README can be too long and detailed, too long is better than too short. If you think your README is too long, consider utilizing another form of documentation rather than cutting out information.
+获取易宝支付开放平台(YOP)的所有产品的概览信息。
 
-## Name
-Choose a self-explaining name for your project.
+**示例调用：**
+```
+yeepay_yop_product_overview()
+```
 
-## Description
-Let people know what your project can do specifically. Provide context and add a link to any reference visitors might be unfamiliar with. A list of Features or a Background subsection can also be added here. If there are alternatives to your project, this is a good place to list differentiating factors.
+**返回：** YOP 平台所有产品的概览信息（markdown 格式）
 
-## Badges
-On some READMEs, you may see small images that convey metadata, such as whether or not all the tests are passing for the project. You can use Shields to add some to your README. Many services also have instructions for adding a badge.
+#### 3. yeepay_yop_product_detail_and_associated_apis(product_code)
 
-## Visuals
-Depending on what you are making, it can be a good idea to include screenshots or even a video (you'll frequently see GIFs rather than actual videos). Tools like ttygif can help, but check out Asciinema for a more sophisticated method.
+获取指定产品的介绍、使用说明和相关 API 接口列表。
 
-## Installation
-Within a particular ecosystem, there may be a common way of installing things, such as using Yarn, NuGet, or Homebrew. However, consider the possibility that whoever is reading your README is a novice and would like more guidance. Listing specific steps helps remove ambiguity and gets people to using your project as quickly as possible. If it only runs in a specific context like a particular programming language version or operating system or has dependencies that have to be installed manually, also add a Requirements subsection.
+**参数：**
+- `product_code`（字符串）- 产品编码，产品的唯一标识
 
-## Usage
-Use examples liberally, and show the expected output if you can. It's helpful to have inline the smallest example of usage that you can demonstrate, while providing links to more sophisticated examples if they are too long to reasonably include in the README.
+**示例调用：**
+```
+yeepay_yop_product_detail_and_associated_apis("user-scan")
+```
 
-## Support
-Tell people where they can go to for help. It can be any combination of an issue tracker, a chat room, an email address, etc.
+**返回：** 指定产品的介绍、使用说明和相关 API 接口列表（markdown 格式）
 
-## Roadmap
-If you have ideas for releases in the future, it is a good idea to list them in the README.
+#### 4. yeepay_yop_api_detail(api_uri)
 
-## Contributing
-State if you are open to contributions and what your requirements are for accepting them.
+获取指定 API 接口的详细定义，包含基本信息、请求参数、请求示例、响应参数、响应示例、错误码、回调、示例代码等信息。
 
-For people who want to make changes to your project, it's helpful to have some documentation on how to get started. Perhaps there is a script that they should run or some environment variables that they need to set. Make these steps explicit. These instructions could also be useful to your future self.
+**参数：**
+- `api_uri`（字符串）- API 的 URI 路径，支持以下格式：
+  - `/rest/v1.0/aggpay/pre-pay`
+  - `https://open.yeepay.com/docs-v3/api/post_rest_v1.0_aggpay_pre-pay.md`
+  - `https://open.yeepay.com/docs-v2/apis/user-scan/post__rest__v1.0__aggpay__pre-pay/index.html`
 
-You can also document commands to lint the code or run tests. These steps help to ensure high code quality and reduce the likelihood that the changes inadvertently break something. Having instructions for running tests is especially helpful if it requires external setup, such as starting a Selenium server for testing in a browser.
+**示例调用：**
+```
+yeepay_yop_api_detail("/rest/v1.0/aggpay/pre-pay")
+```
 
-## Authors and acknowledgment
-Show your appreciation to those who have contributed to the project.
+**返回：** API 接口的详细定义信息（markdown 格式）
 
-## License
-For open source projects, say how it is licensed.
+#### 5. yeepay_yop_java_sdk_user_guide()
 
-## Project status
-If you have run out of energy or time for your project, put a note at the top of the README saying that development has slowed down or stopped completely. Someone may choose to fork your project or volunteer to step in as a maintainer or owner, allowing your project to keep going. You can also make an explicit request for maintainers.
+获取易宝支付开放平台(YOP)的 yop-java-sdk 使用说明。
+
+**示例调用：**
+```
+yeepay_yop_java_sdk_user_guide()
+```
+
+**返回：** yop-java-sdk 使用说明（markdown 格式）
+
+## 常见问题
+
+1. **如何查找产品编码？**
+   可以通过调用 `yeepay_yop_product_overview()` 获取产品概览，从中找到需要的产品编码。
+
+2. **如何获取完整的 API 列表？**
+   先通过 `yeepay_yop_product_overview()` 获取产品编码，然后调用 `yeepay_yop_product_detail_and_associated_apis(product_code)` 获取特定产品的 API 列表。
+
+3. **接口返回错误怎么办？**
+   系统已内置容错机制，如果特定接口请求失败，会尝试备用地址获取信息。
+
+## 注意事项
+
+- 所有接口返回的数据均为 markdown 格式，方便直接展示
+- 确保网络连接正常，能够访问易宝支付开放平台
+
+## 贡献指南
+
+欢迎提交 Issue 或 Pull Request 来改进这个项目。
+
+## 许可证
+
+[LICENSE 信息]
+
+
+
+
+
+
