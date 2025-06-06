@@ -61,7 +61,7 @@ def yeepay_yop_api_detail(api_uri: str):
     通过此工具，获取易宝支付开放平台(YOP)的API接口的详细定义，包含基本信息、请求参数、请求示例、响应参数、响应示例、错误码、回调、示例代码等信息，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
 
     Args:
-        api_uri: str - API的URI路径， 例如：/rest/v1.0/aggpay/pre-pay, https://open.yeepay.com/docs-v3/api/post_rest_v1.0_aggpay_pre-pay.md, https://open.yeepay.com/docs-v2/apis/user-scan/post__rest__v1.0__aggpay__pre-pay/index.html
+        api_uri: str - API的URI路径， 例如：/rest/v1.0/aggpay/pre-pay, https://open.yeepay.com/docs-v3/api/post_rest_v1.0_aggpay_pre-pay.md, https://open.yeepay.com/docs-v2/apis/user-scan/post__rest__v1.0__aggpay__pre-pay/index.html, https://open.yeepay.com/docs/apis/bzshsfk/post__rest__v1.0__account__ali-sign-contract, https://open.yeepay.com/docs-v2/apis/merchant-netin/options__rest__v1.0__mer__merchant__wechatauth__apply
     
     Returns:
         str: 易宝支付开放平台(YOP)的API接口的详细定义，包含基本信息、请求参数、请求示例、响应参数、响应示例、错误码、回调、示例代码等信息(markdown格式)
@@ -74,7 +74,7 @@ def yeepay_yop_api_detail(api_uri: str):
     if api_uri.startswith("http"):
         if api_uri.endswith(".md"):
             response = HttpUtils.download_content(api_uri)
-        elif api_uri.endswith(".html"):
+        elif api_uri.endswith(".html") or "/docs/apis/" in api_uri or "/docs-v2/apis/" in api_uri:
             url_parts = api_uri.split("/")
             for part in url_parts:
                 if part.startswith("post__") or part.startswith("get__") or part.startswith("options__"):
