@@ -27,7 +27,8 @@ dependencies = [
     "httpx[http2]>=0.28.1",
     "mcp[cli]>=1.6.0",
     "gmssl>=3.2.2",
-    "cryptography>=42.0.0"
+    "cryptography>=42.0.0",
+    "pylint>=3.3.7",
 ]
 
 [project.optional-dependencies]

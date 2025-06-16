@@ -1,5 +1,4 @@
 import json
-import os
 from typing import Any, Dict
 
 from mcp.server.fastmcp import FastMCP
@@ -66,13 +65,17 @@ def yeepay_yop_product_detail_and_associated_apis(product_code: str):
 @mcp.tool()
 def yeepay_yop_api_detail(api_uri: str):
     """
-    通过此工具，获取易宝支付开放平台(YOP)的API接口的详细定义，包含基本信息、请求参数、请求示例、响应参数、响应示例、错误码、回调、示例代码等信息，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
+    通过此工具，获取易宝支付开放平台(YOP)的API接口的详细定义，包含基本信息、请求参数、请求示例、
+    响应参数、响应示例、错误码、回调、示例代码等信息，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
 
     Args:
-        api_uri: str - API的URI路径， 例如：/rest/v1.0/aggpay/pre-pay, https://open.yeepay.com/docs-v3/api/post_rest_v1.0_aggpay_pre-pay.md, https://open.yeepay.com/docs-v2/apis/user-scan/post__rest__v1.0__aggpay__pre-pay/index.html, https://open.yeepay.com/docs/apis/bzshsfk/post__rest__v1.0__account__ali-sign-contract, https://open.yeepay.com/docs-v2/apis/merchant-netin/options__rest__v1.0__mer__merchant__wechatauth__apply
+        api_uri: str - API的URI路径， 例如：/rest/v1.0/aggpay/pre-pay,
+            https://open.yeepay.com/docs-v3/api/post_rest_v1.0_aggpay_pre-pay.md,
+            https://open.yeepay.com/docs-v2/apis/user-scan/post__rest__v1.0__aggpay__pre-pay/index.html
 
     Returns:
-        str: 易宝支付开放平台(YOP)的API接口的详细定义，包含基本信息、请求参数、请求示例、响应参数、响应示例、错误码、回调、示例代码等信息(markdown格式)
+        str: 易宝支付开放平台(YOP)的API接口的详细定义，包含基本信息、请求参数、请求示例、
+            响应参数、响应示例、错误码、回调、示例代码等信息(markdown格式)
 
     """
 
@@ -94,9 +97,9 @@ def yeepay_yop_api_detail(api_uri: str):
                     or part.startswith("get__")
                     or part.startswith("options__")
                 ):
-                    apiId = part.replace("__", "_")
+                    api_id = part.replace("__", "_")
                     response = HttpUtils.download_content(
-                        "https://open.yeepay.com/docs-v3/api/" + apiId + ".md"
+                        "https://open.yeepay.com/docs-v3/api/" + api_id + ".md"
                     )
                     break
 
@@ -158,9 +161,9 @@ def yeepay_yop_link_detail(url: str):
     try:
         if url.startswith("http"):
             return HttpUtils.download_content(url)
-        else:
-            url = ("https://open.yeepay.com/" + url).replace("//", "/")
-            return HttpUtils.download_content(url)
+
+        url = ("https://open.yeepay.com/" + url).replace("//", "/")
+        return HttpUtils.download_content(url)
     except Exception:
         return "HTTP请求失败, url: " + url
 
@@ -193,16 +196,18 @@ def yeepay_yop_java_sdk_user_guide():
 
 
 @mcp.tool()
-def yeepay_yop_gen_key_pair(algorithm="RSA", format="pkcs8", storage_type="file"):
+def yeepay_yop_gen_key_pair(algorithm="RSA", key_format="pkcs8", storage_type="file"):
     """
     根据密钥算法生成非对称加密的密钥对（公钥和私钥），并保存到本地路径
 
     参数:
         algorithm: 密钥算法，可选值为 "RSA" 或 "SM2"，默认为 "RSA"
-        format: 密钥格式，可选值为 "pkcs8"或"pkcs1"，默认为 "pkcs8"
+        key_format: 密钥格式，可选值为 "pkcs8"或"pkcs1"，默认为 "pkcs8"
         storage_type: 密钥存储类型，"file"或"string"，默认为 "file"
     """
-    return gen_key_pair(algorithm=algorithm, format=format, storage_type=storage_type)
+    return gen_key_pair(
+        algorithm=algorithm, format=key_format, storage_type=storage_type
+    )
 
 
 @mcp.tool()
@@ -243,15 +248,15 @@ def yeepay_yop_download_cert(
 
 @mcp.tool()
 def yeepay_yop_parse_certificates(
-    algorithm="RSA", pfxCert=None, pubCert=None, pwd=None
+    algorithm="RSA", pfx_cert=None, pub_cert=None, pwd=None
 ):
     """
     根据证书文件解析出Base64编码后的公钥或私钥字符串
 
     Args:
         algorithm (str): 密钥算法，可选值为 "RSA" 或 "SM2"，默认为 "RSA"
-        pfxCert (str): 私钥证书（.pfx）文件路径
-        pubCert (str): 公钥证书（.cer）文件路径
+        pfx_cert (str): 私钥证书（.pfx）文件路径
+        pub_cert (str): 公钥证书（.cer）文件路径
         pwd (str, optional): PFX证书的密码，默认为None
 
     Returns:
@@ -263,7 +268,7 @@ def yeepay_yop_parse_certificates(
             }
     """
     return parse_certificates(
-        algorithm=algorithm, pfxCert=pfxCert, pubCert=pubCert, pwd=pwd
+        algorithm=algorithm, pfxCert=pfx_cert, pubCert=pub_cert, pwd=pwd
     )
 
 
@@ -300,6 +305,9 @@ if __name__ == "__main__":
     # 下载证书
     # serial_no = "4928999747"
     # auth_code = "64NPRSS6AR"
-    # private_key = "MIGEAgEAMBAGByqGSM49AgEGBSuBBAAKBG0wawIBAQQgDQKlS7bO/Kk5ki6EX2jc7fwpBZdQSfLLkydhhpfNJp+hRANCAASvzBZG6h3rpDOLy9Fx5yW3Pa6Od3CngeFK5f8uUlPHrtxLmNl0CHBserrsk/fFJanzIKpEEIisR7AOykJ2wqgr"
-    # public_key = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEr8wWRuod66Qzi8vRcecltz2ujndwp4HhSuX/LlJTx67cS5jZdAhwbHq67JP3xSWp8yCqRBCIrEewDspCdsKoKw=="
-    # print(yeepay_yop_download_cert(algorithm="SM2", serial_no=serial_no, auth_code=auth_code, private_key=private_key, public_key=public_key, pwd="qwertyuiop[]"))
+    # private_key = "MIGEAgEAMBAGByqGSM49AgEGBSuBBAAKBG0wawIBAQQgDQKlS7bO/Kk5ki6EX2jc7fwpBZdQSfLLkydhhpfNJp+h" \
+    #               "RANCAASvzBZG6h3rpDOLy9Fx5yW3Pa6Od3CngeFK5f8uUlPHrtxLmNl0CHBserrsk/fFJanzIKpEEIisR7AOykJ2wqgr"
+    # public_key = "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEr8wWRuod66Qzi8vRcecltz2ujndwp4HhSuX/LlJTx67cS5jZdAhwbHq67JP3" \
+    #              "xSWp8yCqRBCIrEewDspCdsKoKw=="
+    # print(yeepay_yop_download_cert(algorithm="SM2", serial_no=serial_no, auth_code=auth_code,
+    #                                private_key=private_key, public_key=public_key, pwd="qwertyuiop[]"))

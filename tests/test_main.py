@@ -185,8 +185,8 @@ class TestYOPMCPFunctions:
 
         result = yeepay_yop_parse_certificates(
             algorithm="RSA",
-            pfxCert="/path/to/cert.pfx",
-            pubCert="/path/to/cert.cer",
+            pfx_cert="/path/to/cert.pfx",
+            pub_cert="/path/to/cert.cer",
             pwd="password123",
         )
 

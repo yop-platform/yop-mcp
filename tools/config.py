@@ -16,3 +16,18 @@ class Config:
 
     # QA环境配置
     QA_HOST_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "config")
+
+    @classmethod
+    def get_cert_path(cls, algorithm: str) -> str:
+        """获取证书保存路径"""
+        if algorithm.upper() == "RSA":
+            return cls.RSA_CERT_SAVE_PATH
+        elif algorithm.upper() == "SM2":
+            return cls.SM2_CERT_SAVE_PATH
+        else:
+            raise ValueError(f"不支持的算法: {algorithm}")
+
+    @classmethod
+    def is_supported_algorithm(cls, algorithm: str) -> bool:
+        """检查是否支持指定算法"""
+        return algorithm.upper() in ["RSA", "SM2"]
