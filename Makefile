@@ -14,7 +14,7 @@ install: ## 安装生产依赖
 	uv sync
 
 install-dev: ## 安装开发依赖
-	uv sync --all-extras
+	uv sync --extra dev --extra test
 
 # 测试相关
 test: ## 运行测试
@@ -100,7 +100,7 @@ build-check: ## 检查构建
 # 依赖管理
 deps-update: ## 更新依赖
 	uv lock --upgrade
-	uv sync --all-extras
+	uv sync --extra dev --extra test
 
 deps-audit: ## 审计依赖安全性
 	uv add safety && uv run safety check

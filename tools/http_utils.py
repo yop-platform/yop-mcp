@@ -1,25 +1,26 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import httpx
-from pathlib import Path
-from typing import Any, Dict, Union, Optional
 import urllib.parse
 import urllib.request
+from pathlib import Path
+from typing import Any, Dict, Optional, Union
+
+import httpx
 
 
 class HttpUtils:
     """HTTP工具类，提供同步下载文件、获取内容等功能"""
-    
+
     @staticmethod
     def download_content(url: str, timeout: Optional[int] = None) -> str:
         """
         同步下载文件（无进度显示）并返回文件内容
-        
+
         Args:
             url: 下载地址
             timeout: 超时时间（秒）
-            
+
         Returns:
             str: 下载的文本内容
         """
@@ -36,17 +37,17 @@ class HttpUtils:
         except Exception as e:
             print(f"请求失败：{str(e)}")
             return f"HTTP请求失败: {str(e)}"
-    
+
     @staticmethod
     def download_file(url: str, save_path: str, timeout: Optional[int] = None) -> str:
         """
         同步下载文件（无进度显示）并保存到指定路径
-        
+
         Args:
             url: 下载地址
             save_path: 保存路径
             timeout: 超时时间（秒）
-            
+
         Returns:
             str: 保存的文件路径
         """
@@ -63,18 +64,23 @@ class HttpUtils:
         except IOError as e:
             print(f"文件写入失败：{str(e)}")
         return save_path
-    
+
     @staticmethod
-    def post_json(url: str, data: dict, headers: Optional[dict] = None, timeout: Optional[int] = None) -> Union[dict, str]:
+    def post_json(
+        url: str,
+        data: dict,
+        headers: Optional[dict] = None,
+        timeout: Optional[int] = None,
+    ) -> Union[dict, str]:
         """
         发送POST请求，提交JSON数据
-        
+
         Args:
             url: 请求地址
             data: 请求数据（字典格式，将自动转为JSON）
             headers: 请求头
             timeout: 超时时间（秒）
-            
+
         Returns:
             Union[dict, str]: 响应内容，如果是JSON则返回解析后的字典，否则返回字符串
         """
@@ -84,10 +90,10 @@ class HttpUtils:
                     headers = {"Content-Type": "application/json"}
                 elif "Content-Type" not in headers:
                     headers["Content-Type"] = "application/json"
-                
+
                 response = client.post(url, json=data, headers=headers)
                 response.raise_for_status()
-                
+
                 try:
                     return response.json()
                 except:
@@ -98,18 +104,23 @@ class HttpUtils:
         except Exception as e:
             print(f"请求失败：{str(e)}")
             return f"HTTP请求失败: {str(e)}"
-    
+
     @staticmethod
-    def get_json(url: str, params: Optional[dict] = None, headers: Optional[dict] = None, timeout: Optional[int] = None) -> Union[dict, str]:
+    def get_json(
+        url: str,
+        params: Optional[dict] = None,
+        headers: Optional[dict] = None,
+        timeout: Optional[int] = None,
+    ) -> Union[dict, str]:
         """
         发送GET请求，获取JSON数据
-        
+
         Args:
             url: 请求地址
             params: 查询参数
             headers: 请求头
             timeout: 超时时间（秒）
-            
+
         Returns:
             Union[dict, str]: 响应内容，如果是JSON则返回解析后的字典，否则返回字符串
         """
@@ -117,7 +128,7 @@ class HttpUtils:
             with httpx.Client(http2=True, timeout=timeout) as client:
                 response = client.get(url, params=params, headers=headers)
                 response.raise_for_status()
-                
+
                 try:
                     return response.json()
                 except:
@@ -130,24 +141,29 @@ class HttpUtils:
             return f"HTTP请求失败: {str(e)}"
 
     @staticmethod
-    def get_response(get_url: str, request_param: Dict[Any, Any], request_header: Dict[Any, Any]) -> str:
+    def get_response(
+        get_url: str, request_param: Dict[Any, Any], request_header: Dict[Any, Any]
+    ) -> str:
         param = ""
         if request_param is not None:
             param_list = []
             for key, value in request_param.items():
-                param_list.append(f"{key}={urllib.parse.quote(str(value), encoding='utf-8')}")
+                param_list.append(
+                    f"{key}={urllib.parse.quote(str(value), encoding='utf-8')}"
+                )
             param = "&".join(param_list)
-        
+
         full_url = f"{get_url}?{param}"
-        
+
         req = urllib.request.Request(full_url)
         if request_header is not None:
             for key, value in request_header.items():
                 req.add_header(str(key), str(value))
-        
+
         with urllib.request.urlopen(req) as response:
-            response_data = response.read().decode('utf-8')
+            response_data = response.read().decode("utf-8")
             return response_data
+
 
 # 为了兼容性，保留原始函数名称
 def sync_download(url: str, timeout: Optional[int] = None) -> str:
@@ -155,6 +171,8 @@ def sync_download(url: str, timeout: Optional[int] = None) -> str:
     return HttpUtils.download_content(url, timeout)
 
 
-def sync_download_to_file(url: str, save_path: str, timeout: Optional[int] = None) -> str:
+def sync_download_to_file(
+    url: str, save_path: str, timeout: Optional[int] = None
+) -> str:
     """同步下载文件（无进度显示）"""
-    return HttpUtils.download_file(url, save_path, timeout) 
+    return HttpUtils.download_file(url, save_path, timeout)

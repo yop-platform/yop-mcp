@@ -1,5 +1,6 @@
 import json
-from typing import Dict, Any, Optional, List, Set, Union
+from typing import Any, Dict, List, Optional, Set, Union
+
 
 class JsonUtils:
     @staticmethod
@@ -9,12 +10,12 @@ class JsonUtils:
         except Exception as e:
             print(e)
             return None
-    
+
     @staticmethod
     def json_to_pojo(json_str: str, cls: type) -> Any:
         """将JSON字符串转换为Python对象"""
         return json.loads(json_str)
-    
+
     @staticmethod
     def json_to_list(json_data: str, bean_type) -> Optional[List]:
         try:

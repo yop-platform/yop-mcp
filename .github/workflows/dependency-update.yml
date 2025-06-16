@@ -26,7 +26,7 @@ jobs:
       - name: Update dependencies
         run: |
           uv lock --upgrade
-          uv sync --all-extras
+          uv sync --extra dev --extra test
 
       - name: Run tests
         run: |
