@@ -1,0 +1,107 @@
+name: Dependency Update
+
+on:
+  schedule:
+    - cron: "0 2 * * 1" # Weekly on Monday at 2 AM UTC
+  workflow_dispatch:
+
+jobs:
+  update-dependencies:
+    name: Update Dependencies
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python 3.13
+        run: uv python install 3.13
+
+      - name: Update dependencies
+        run: |
+          uv lock --upgrade
+          uv sync --all-extras
+
+      - name: Run tests
+        run: |
+          uv run pytest
+
+      - name: Check for changes
+        id: changes
+        run: |
+          if git diff --quiet; then
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "changes=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Create Pull Request
+        if: steps.changes.outputs.changes == 'true'
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: "chore: update dependencies"
+          title: "chore: update dependencies"
+          body: |
+            ## Dependency Update
+
+            This PR updates project dependencies to their latest versions.
+
+            ### Changes
+            - Updated dependency versions in `uv.lock`
+            - All tests pass with updated dependencies
+
+            ### Testing
+            - [x] All existing tests pass
+            - [x] No breaking changes detected
+
+            This PR was automatically created by the dependency update workflow.
+          branch: chore/update-dependencies
+          delete-branch: true
+
+  security-audit:
+    name: Security Audit
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
+        with:
+          version: "latest"
+
+      - name: Set up Python 3.13
+        run: uv python install 3.13
+
+      - name: Install dependencies
+        run: uv sync
+
+      - name: Run safety check
+        run: |
+          uv add safety
+          uv run safety check --json --output safety-report.json || true
+
+      - name: Upload safety report
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-report
+          path: safety-report.json
+
+      - name: Check for vulnerabilities
+        run: |
+          if [ -f safety-report.json ]; then
+            VULN_COUNT=$(jq '.vulnerabilities | length' safety-report.json)
+            if [ "$VULN_COUNT" -gt 0 ]; then
+              echo "::warning::Found $VULN_COUNT security vulnerabilities"
+              jq -r '.vulnerabilities[] | "::warning::Vulnerability in \(.package_name): \(.advisory)"' safety-report.json
+            else
+              echo "No security vulnerabilities found"
+            fi
+          fi

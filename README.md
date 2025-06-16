@@ -1,67 +1,102 @@
-# yop-mcp
+# YOP MCP Server
 
-快速对接YOP的MCP Server
+[![Python Version](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
+[![Build Status](https://github.com/yop-platform/yop-mcp-python/workflows/Python%20package/badge.svg)](https://github.com/yop-platform/yop-mcp-python/actions)
+[![Code Quality](https://github.com/yop-platform/yop-mcp-python/workflows/CodeQL/badge.svg)](https://github.com/yop-platform/yop-mcp-python/actions)
+[![MCP](https://img.shields.io/badge/MCP-Server-orange.svg)](https://modelcontextprotocol.io/)
 
-## 简介
+> 🚀 快速对接易宝支付开放平台(YOP)的 MCP Server
 
-yop-mcp 是一个快速对接易宝支付开放平台(YOP)的 MCP Server，提供了一系列工具函数，帮助开发者更便捷地获取 YOP 平台的相关信息。
+## 📖 简介
 
-## 功能特点
+**yop-mcp** 是一个专为易宝支付开放平台(YOP)设计的 MCP (Model Context Protocol) Server，提供了一套完整的工具函数，帮助开发者通过AI助手（如Claude、Cursor等）更便捷地获取YOP平台的相关信息、生成密钥对、下载证书等操作。
+
+### ✨ 核心特性
+
+- 🔧 **10个专业工具函数** - 覆盖平台概览、产品详情、API文档、SDK指南等
+- 🔐 **密钥管理** - 支持RSA/SM2算法的密钥对生成和证书下载
+- 📚 **智能文档获取** - 自动获取最新的API文档和产品信息
+- 🛡️ **安全可靠** - 内置容错机制和安全验证
+- 🚀 **即插即用** - 与主流AI开发工具无缝集成
+
+## 🛠️ 功能特点
 
 该 MCP Server 提供以下工具函数：
+
+### 📋 平台信息获取
 
 1. **yeepay_yop_overview()** - 获取易宝支付开放平台(YOP)的平台规范、产品概览、接入流程和对接工具信息
 2. **yeepay_yop_product_overview()** - 获取易宝支付开放平台(YOP)的所有产品的概览信息
 3. **yeepay_yop_product_detail_and_associated_apis(product_code)** - 获取指定产品的介绍、使用说明和相关 API 接口列表
 4. **yeepay_yop_api_detail(api_uri)** - 获取指定 API 接口的详细定义，包括基本信息、请求参数、响应参数、示例代码等
-5. **yeepay_yop_java_sdk_user_guide()** - 获取易宝支付开放平台(YOP)的 yop-java-sdk 使用说明
-6. **yeepay_yop_sdk_and_tools_guide()** - 获取易宝支付开放平台(YOP)提供的各种SDK和工具的使用说明
-7. **yeepay_yop_link_detail(url)** - 获取易宝支付开放平台(YOP)的各个子页面或外部链接的详细内容
-8. **yeepay_yop_gen_key_pair(algorithm, format, storage_type)** - 生成非对称加密的密钥对
-9. **yeepay_yop_download_cert(algorithm, serial_no, auth_code, private_key, public_key, pwd)** - 下载CFCA证书
-10. **yeepay_yop_parse_certificates(algorithm, pfxCert, pubCert, pwd)** - 解析证书文件获取公钥或私钥字符串
 
-## 环境要求
+### 📚 文档和SDK指南
 
-- Python 3.13 或更高版本
-- uv（Python 包管理器）
+1. **yeepay_yop_java_sdk_user_guide()** - 获取易宝支付开放平台(YOP)的 yop-java-sdk 使用说明
+2. **yeepay_yop_sdk_and_tools_guide()** - 获取易宝支付开放平台(YOP)提供的各种SDK和工具的使用说明
+3. **yeepay_yop_link_detail(url)** - 获取易宝支付开放平台(YOP)的各个子页面或外部链接的详细内容
 
-### 安装 uv
+### 🔐 密钥和证书管理
 
-- Windows:
+1. **yeepay_yop_gen_key_pair(algorithm, format, storage_type)** - 生成非对称加密的密钥对
+2. **yeepay_yop_download_cert(algorithm, serial_no, auth_code, private_key, public_key, pwd)** - 下载CFCA证书
+3. **yeepay_yop_parse_certificates(algorithm, pfxCert, pubCert, pwd)** - 解析证书文件获取公钥或私钥字符串
+
+## 📋 环境要求
+
+- **Python**: 3.13 或更高版本
+- **包管理器**: uv（推荐）或 pip
+- **操作系统**: Windows / macOS / Linux
+
+## 🚀 快速开始
+
+### 1. 安装 uv（推荐）
+
+**Windows:**
+
 ```bash
 pip install uv
 ```
 
-- Linux/Mac:
+**Linux/Mac:**
+
 ```bash
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-## 安装步骤
+### 2. 获取代码
 
-1. 获取代码：
 ```bash
 git clone http://gitlab.yeepay.com/yop/yop-mcp.git
 cd yop-mcp
 ```
 
-2. 安装依赖：
+### 3. 安装依赖
+
 ```bash
 uv sync  # 这将创建虚拟环境并安装所需的包
 ```
 
-## 运行服务器
+### 4. 运行服务器
 
 ```bash
 uv run main.py
 ```
 
-## 在 Cursor 中配置
+服务器启动后，您将看到类似以下的输出：
 
-Cursor 通常允许在其设置中指定自定义 MCP 服务器。您需要将 Cursor 指向这个正在运行的服务器。具体配置方式可能有所不同，请参考 Cursor 的文档来添加自定义 MCP。
+```text
+MCP Server started on stdio transport
+```
 
-### 手动配置（通过 mcp.json）
+## 🔧 在 AI 工具中配置
+
+### Cursor 配置
+
+Cursor 通常允许在其设置中指定自定义 MCP 服务器。您需要将 Cursor 指向这个正在运行的服务器。
+
+#### 手动配置（通过 mcp.json）
 
 请记得将路径 `/Users/your-username/path/to/yop-mcp` 更改为您系统上实际克隆仓库的路径。
 
@@ -94,14 +129,33 @@ Cursor 通常允许在其设置中指定自定义 MCP 服务器。您需要将 C
 }
 ```
 
-## 工具函数说明
+### Claude Desktop 配置
+
+在 Claude Desktop 中，您可以通过配置文件添加 MCP 服务器：
+
+**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "yop-mcp": {
+      "command": "uv",
+      "args": ["--directory", "/path/to/yop-mcp", "run", "main.py"]
+    }
+  }
+}
+```
+
+## 📚 API 文档
 
 ### 1. yeepay_yop_overview()
 
 获取易宝支付开放平台(YOP)的概览信息，包括平台规范、产品概览、接入流程和对接工具等信息。
 
 **示例调用：**
-```
+
+```python
 yeepay_yop_overview()
 ```
 
@@ -112,7 +166,8 @@ yeepay_yop_overview()
 获取易宝支付开放平台(YOP)的所有产品的概览信息。
 
 **示例调用：**
-```
+
+```python
 yeepay_yop_product_overview()
 ```
 
@@ -123,10 +178,12 @@ yeepay_yop_product_overview()
 获取指定产品的介绍、使用说明和相关 API 接口列表。
 
 **参数：**
+
 - `product_code`（字符串）- 产品编码，产品的唯一标识
 
 **示例调用：**
-```
+
+```python
 yeepay_yop_product_detail_and_associated_apis("user-scan")
 ```
 
@@ -241,29 +298,79 @@ yeepay_yop_gen_key_pair(algorithm="SM2", format="pkcs8", storage_type="file")
 }
 ```
 
-## 常见问题
+## ❓ 常见问题
 
-1. **如何查找产品编码？**
-   可以通过调用 `yeepay_yop_product_overview()` 获取产品概览，从中找到需要的产品编码。
+### 如何查找产品编码？
 
-2. **如何获取完整的 API 列表？**
-   先通过 `yeepay_yop_product_overview()` 获取产品编码，然后调用 `yeepay_yop_product_detail_and_associated_apis(product_code)` 获取特定产品的 API 列表。
+可以通过调用 `yeepay_yop_product_overview()` 获取产品概览，从中找到需要的产品编码。
 
-3. **接口返回错误怎么办？**
-   系统已内置容错机制，如果特定接口请求失败，会尝试备用地址获取信息。
+### 如何获取完整的 API 列表？
 
-## 注意事项
+先通过 `yeepay_yop_product_overview()` 获取产品编码，然后调用 `yeepay_yop_product_detail_and_associated_apis(product_code)` 获取特定产品的 API 列表。
+
+### 接口返回错误怎么办？
+
+系统已内置容错机制，如果特定接口请求失败，会尝试备用地址获取信息。
+
+### 如何在不同的AI工具中使用？
+
+本项目支持所有兼容MCP协议的AI工具，包括但不限于：
+- Claude Desktop
+- Cursor
+- 其他支持MCP的AI开发工具
+
+## ⚠️ 注意事项
 
 - 所有接口返回的数据均为 markdown 格式，方便直接展示
 - 确保网络连接正常，能够访问易宝支付开放平台
+- 密钥和证书操作涉及敏感信息，请妥善保管
+- 建议在测试环境中先验证功能后再在生产环境使用
 
-## 贡献指南
+## 🤝 贡献指南
 
-欢迎提交 Issue 或 Pull Request 来改进这个项目。
+我们欢迎所有形式的贡献！
 
-## 许可证
+### 如何贡献
 
-[LICENSE 信息]
+1. Fork 本仓库
+2. 创建您的特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交您的更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 打开一个 Pull Request
+
+### 开发指南
+
+1. 确保您的代码符合项目的编码规范
+2. 添加适当的测试用例
+3. 更新相关文档
+4. 确保所有测试通过
+
+## 📄 许可证
+
+本项目采用 [Apache License 2.0](LICENSE) 许可证。
+
+## 🙏 致谢
+
+感谢所有为这个项目做出贡献的开发者！
+
+## 📞 支持
+
+如果您在使用过程中遇到问题，可以通过以下方式获取帮助：
+
+- 提交 [Issue](http://gitlab.yeepay.com/yop/yop-mcp/-/issues)
+- 查看 [易宝支付开放平台文档](https://open.yeepay.com/)
+- 联系技术支持
+
+## 🔗 相关链接
+
+- [易宝支付开放平台](https://open.yeepay.com/)
+- [MCP 协议文档](https://modelcontextprotocol.io/)
+- [Claude Desktop](https://claude.ai/desktop)
+- [Cursor](https://cursor.sh/)
+
+---
+
+*Made with ❤️ by YOP Team*
 
 
 
