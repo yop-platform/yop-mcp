@@ -1,19 +1,14 @@
 import base64
 import os
 from enum import Enum
-from typing import Any, Dict, List, Optional, Tuple, Union
+from typing import Any, Dict, List, Optional
 
 from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import hashes, serialization
 from cryptography.hazmat.primitives.asymmetric import ec, padding, rsa
-from cryptography.hazmat.primitives.asymmetric.ec import EllipticCurvePublicKey
 from cryptography.hazmat.primitives.serialization import (
-    BestAvailableEncryption,
     Encoding,
-    NoEncryption,
-    PrivateFormat,
-    PublicFormat,
     pkcs12,
 )
 from cryptography.x509.oid import NameOID
@@ -77,7 +72,7 @@ class CertUtils:
             raise Exception(f"加载公钥失败: {str(e)}")
 
     @staticmethod
-    def genP10(pri_key: str, pub_key: str, key_type: KeyType) -> str:
+    def gen_p10(pri_key: str, pub_key: str, key_type: KeyType) -> str:  # pylint: disable=unused-argument
         """生成P10证书请求"""
         try:
             # 加载密钥
@@ -114,7 +109,7 @@ class CertUtils:
             raise Exception(f"生成P10证书请求失败: {str(e)}")
 
     @staticmethod
-    def makePubCert(cert: str, serial_no: str, cert_path: str) -> str:
+    def make_pub_cert(cert: str, serial_no: str, cert_path: str) -> str:
         """生成公钥证书文件"""
         try:
             os.makedirs(cert_path, exist_ok=True)
@@ -125,7 +120,7 @@ class CertUtils:
             raise Exception(f"生成公钥证书文件失败: {str(e)}")
 
     @staticmethod
-    def makePfxCert(
+    def make_pfx_cert(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         pri_key: str,
         cert: str,
         key_type: KeyType,
@@ -445,14 +440,14 @@ class SupportUtil:
     @staticmethod
     def read_file_as_string(file_path: str) -> str:
         """从文件中读取内容为字符串"""
-        with open(file_path, "r") as file:
+        with open(file_path, "r", encoding="utf-8") as file:
             return file.read()
 
     @staticmethod
     def write_string_to_file(content: str, file_path: str) -> None:
         """将字符串内容写入文件"""
         os.makedirs(os.path.dirname(file_path), exist_ok=True)
-        with open(file_path, "w") as file:
+        with open(file_path, "w", encoding="utf-8") as file:
             file.write(content)
 
 
@@ -489,7 +484,7 @@ def download_cert(
         cert_req = private_key
     else:
         try:
-            cert_req = CertUtils.genP10(private_key, public_key, key_type)
+            cert_req = CertUtils.gen_p10(private_key, public_key, key_type)
         except Exception as e:
             return {"message": f"生成证书请求失败: {str(e)}"}
 
@@ -531,9 +526,9 @@ def download_cert(
 
         # 保存证书
         if cert:
-            pub_cert_path = CertUtils.makePubCert(cert, serial_no, cert_path)
+            pub_cert_path = CertUtils.make_pub_cert(cert, serial_no, cert_path)
         if not p10_generated and cert:
-            pri_cert_path = CertUtils.makePfxCert(
+            pri_cert_path = CertUtils.make_pfx_cert(
                 private_key, cert, key_type, pwd, serial_no, cert_path
             )
 
@@ -546,7 +541,11 @@ def download_cert(
         return {"message": f"系统异常，请稍后重试: {str(e)}"}
 
 
-def gen_key_pair(algorithm: str = "RSA", format: str = "pkcs8", storage_type: str = "file") -> Dict[str, Any]:
+def gen_key_pair(  # pylint: disable=too-many-arguments,too-many-positional-arguments,redefined-builtin
+    algorithm: str = "RSA",
+    format: str = "pkcs8",
+    storage_type: str = "file"
+) -> Dict[str, Any]:
     try:
         private_key_str = None
         public_key_str = None
@@ -629,12 +628,12 @@ def gen_key_pair(algorithm: str = "RSA", format: str = "pkcs8", storage_type: st
 
             # 保存私钥
             private_cert_path = os.path.join(key_dir, f"应用私钥{algorithm_name}.txt")
-            with open(private_cert_path, "w") as f:
+            with open(private_cert_path, "w", encoding="utf-8") as f:
                 f.write(private_key_str)
 
             # 保存公钥
             public_cert_path = os.path.join(key_dir, f"应用公钥{algorithm_name}.txt")
-            with open(public_cert_path, "w") as f:
+            with open(public_cert_path, "w", encoding="utf-8") as f:
                 f.write(public_key_str)
 
         return {

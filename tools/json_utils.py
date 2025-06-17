@@ -7,7 +7,7 @@ class JsonUtils:
     def object_to_json(data: Any) -> Optional[str]:
         try:
             return json.dumps(data)
-        except Exception as e:
+        except (TypeError, ValueError) as e:
             print(e)
             return None
 
@@ -27,6 +27,6 @@ class JsonUtils:
             if isinstance(result, list):
                 return result
             return None
-        except Exception as e:
+        except (TypeError, ValueError) as e:
             print(e)
             return None

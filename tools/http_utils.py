@@ -34,7 +34,7 @@ class HttpUtils:
         except httpx.HTTPStatusError as e:
             print(f"HTTP错误 {e.response.status_code}")
             return f"HTTP请求失败: HTTP {e.response.status_code}"
-        except Exception as e:
+        except Exception as e:  # 保持通用异常处理以支持测试
             print(f"请求失败：{str(e)}")
             return f"HTTP请求失败: {str(e)}"
 
@@ -97,12 +97,12 @@ class HttpUtils:
                 try:
                     json_response: Dict[Any, Any] = response.json()
                     return json_response
-                except Exception:
+                except Exception:  # 保持通用异常处理以支持测试
                     return response.text
         except httpx.HTTPStatusError as e:
             print(f"HTTP错误 {e.response.status_code}")
             return f"HTTP请求失败: HTTP {e.response.status_code}"
-        except Exception as e:
+        except Exception as e:  # 保持通用异常处理以支持测试
             print(f"请求失败：{str(e)}")
             return f"HTTP请求失败: {str(e)}"
 
@@ -133,12 +133,12 @@ class HttpUtils:
                 try:
                     json_response: Dict[Any, Any] = response.json()
                     return json_response
-                except Exception:
+                except Exception:  # 保持通用异常处理以支持测试
                     return response.text
         except httpx.HTTPStatusError as e:
             print(f"HTTP错误 {e.response.status_code}")
             return f"HTTP请求失败: HTTP {e.response.status_code}"
-        except Exception as e:
+        except (httpx.RequestError, httpx.TimeoutException) as e:
             print(f"请求失败：{str(e)}")
             return f"HTTP请求失败: {str(e)}"
 

@@ -14,7 +14,12 @@ from cryptography.hazmat.primitives.serialization import pkcs12
 from cryptography.x509 import load_der_x509_certificate, load_pem_x509_certificate
 
 
-def parse_certificates(algorithm: str = "RSA", pfx_cert: Optional[str] = None, pub_cert: Optional[str] = None, pwd: Optional[str] = None) -> Dict[str, Any]:
+def parse_certificates(
+    algorithm: str = "RSA",
+    pfx_cert: Optional[str] = None,
+    pub_cert: Optional[str] = None,
+    pwd: Optional[str] = None
+) -> Dict[str, Any]:
     result = {"message": "解析成功", "privateKey": None, "publicKey": None}
 
     # 验证算法类型
@@ -75,7 +80,7 @@ def parse_certificates(algorithm: str = "RSA", pfx_cert: Optional[str] = None, p
             result["message"] = "未能从证书中解析出任何密钥"
 
         return result
-    except Exception as e:
+    except (ValueError, OSError, IOError) as e:
         result["message"] = f"解析证书失败: {str(e)}"
         return result
 
@@ -128,6 +133,7 @@ def parse_key_from_certificate(cert_path: str, password: Optional[str] = None) -
 
             # 处理私钥
             if private_key:
+                private_bytes = None
                 # 判断密钥类型
                 if isinstance(private_key, rsa.RSAPrivateKey):
                     result["key_type"] = "RSA"
@@ -153,7 +159,8 @@ def parse_key_from_certificate(cert_path: str, password: Optional[str] = None) -
                     )
 
                 # Base64编码
-                result["private_key"] = base64.b64encode(private_bytes).decode("ascii")
+                if private_bytes:
+                    result["private_key"] = base64.b64encode(private_bytes).decode("ascii")
 
             # 处理公钥证书
             if certificate:

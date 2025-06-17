@@ -142,7 +142,7 @@ def yeepay_yop_sdk_and_tools_guide() -> str:
         return HttpUtils.download_content(
             "https://open.yeepay.com/docs-v3/platform/llms.txt"
         )
-    except Exception:
+    except (ValueError, TypeError, ConnectionError):
         return "HTTP请求失败, url: https://open.yeepay.com/docs-v3/platform/llms.txt"
 
 
@@ -164,7 +164,7 @@ def yeepay_yop_link_detail(url: str) -> str:
 
         url = ("https://open.yeepay.com/" + url).replace("//", "/")
         return HttpUtils.download_content(url)
-    except Exception:
+    except (ValueError, TypeError, ConnectionError):
         return "HTTP请求失败, url: " + url
 
 
@@ -189,7 +189,7 @@ def yeepay_yop_java_sdk_user_guide() -> str:
             + platform_version
             + "/sdk_guide/java-sdk-guide.html"
         )
-    except Exception:
+    except (ValueError, TypeError, ConnectionError):
         return HttpUtils.download_content(
             "https://open.yeepay.com/docs-v3/platform/201.md"
         )
@@ -211,7 +211,7 @@ def yeepay_yop_gen_key_pair(algorithm: str = "RSA", key_format: str = "pkcs8", s
 
 
 @mcp.tool()
-def yeepay_yop_download_cert(
+def yeepay_yop_download_cert(  # pylint: disable=too-many-arguments,too-many-positional-arguments
     algorithm: str = "RSA",
     serial_no: str = "",
     auth_code: str = "",
