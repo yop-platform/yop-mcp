@@ -1,8 +1,6 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
-import urllib.parse
-import urllib.request
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
@@ -133,7 +131,7 @@ class HttpUtils:
                 try:
                     json_response: Dict[Any, Any] = response.json()
                     return json_response
-                except Exception:  # 保持通用异常处理以支持测试
+                except (ValueError, TypeError):
                     return response.text
         except httpx.HTTPStatusError as e:
             print(f"HTTP错误 {e.response.status_code}")
@@ -150,26 +148,22 @@ class HttpUtils:
         if not get_url.startswith(("http://", "https://")):
             raise ValueError("只支持HTTP和HTTPS协议的URL")
 
-        param = ""
+        # 构建查询参数
+        params = {}
         if request_param is not None:
-            param_list = []
             for key, value in request_param.items():
-                param_list.append(
-                    f"{key}={urllib.parse.quote(str(value), encoding='utf-8')}"
-                )
-            param = "&".join(param_list)
+                params[str(key)] = str(value)
 
-        full_url = f"{get_url}?{param}"
-
-        req = urllib.request.Request(full_url)
-        if request_header is not None:
-            for key, value in request_header.items():
-                req.add_header(str(key), str(value))
-
-        # 使用urllib.request.urlopen，但已验证URL安全性
-        with urllib.request.urlopen(req) as response:  # nosec B310
-            response_data = response.read().decode("utf-8")
-            return str(response_data)
+        # 使用httpx替代urllib，避免安全风险
+        try:
+            with httpx.Client(http2=True) as client:
+                response = client.get(get_url, params=params, headers=request_header)
+                response.raise_for_status()
+                return response.text
+        except httpx.HTTPStatusError as e:
+            raise RuntimeError(f"HTTP请求失败: HTTP {e.response.status_code}")
+        except Exception as e:
+            raise RuntimeError(f"HTTP请求失败: {str(e)}")
 
 
 # 为了兼容性，保留原始函数名称

@@ -155,14 +155,17 @@ class TestHttpUtils:
             "https://example.com/api", params=None, headers=None
         )
 
-    @patch("urllib.request.urlopen")
-    @patch("urllib.request.Request")
-    def test_get_response_success(self, mock_request, mock_urlopen):
+    @patch("httpx.Client")
+    def test_get_response_success(self, mock_client):
         """测试get_response方法成功"""
         # 设置mock
         mock_response = MagicMock()
-        mock_response.read.return_value = b'{"result": "success"}'
-        mock_urlopen.return_value.__enter__.return_value = mock_response
+        mock_response.text = '{"result": "success"}'
+        mock_response.raise_for_status.return_value = None
+
+        mock_client_instance = MagicMock()
+        mock_client_instance.get.return_value = mock_response
+        mock_client.return_value.__enter__.return_value = mock_client_instance
 
         # 执行测试
         params = {"param1": "value1", "param2": "value2"}
@@ -171,8 +174,11 @@ class TestHttpUtils:
 
         # 验证结果
         assert result == '{"result": "success"}'
-        mock_request.assert_called_once()
-        mock_urlopen.assert_called_once()
+        mock_client_instance.get.assert_called_once_with(
+            "https://example.com/api",
+            params={"param1": "value1", "param2": "value2"},
+            headers=headers
+        )
 
 
 if __name__ == "__main__":
