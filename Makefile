@@ -45,7 +45,11 @@ type-check: ## 类型检查
 # 安全检查
 security: ## 运行安全检查
 	uv run bandit -r tools/ main.py
-	uv add safety && uv run safety check
+	uv run safety check
+
+security-report: ## 生成安全检查报告
+	uv run bandit -r tools/ main.py -f json -o bandit-report.json
+	uv run safety check --json --output safety-report.json
 
 # 预提交检查
 pre-commit: ## 运行预提交检查

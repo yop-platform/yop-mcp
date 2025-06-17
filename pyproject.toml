@@ -28,7 +28,6 @@ dependencies = [
     "mcp[cli]>=1.6.0",
     "gmssl>=3.2.2",
     "cryptography>=42.0.0",
-    "pylint>=3.3.7",
 ]
 
 [project.optional-dependencies]
@@ -40,7 +39,10 @@ dev = [
     "isort>=5.13.0",
     "flake8>=7.0.0",
     "mypy>=1.8.0",
+    "pylint>=3.3.0",
     "pre-commit>=3.6.0",
+    "bandit>=1.7.5",
+    "safety>=3.0.0",
 ]
 test = [
     "pytest>=8.0.0",

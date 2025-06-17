@@ -36,8 +36,8 @@ jobs:
 
       - name: Lint with flake8
         run: |
-          uv run flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          uv run flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+          uv run flake8 tools/ main.py tests/ --count --select=E9,F63,F7,F82 --show-source --statistics
+          uv run flake8 tools/ main.py tests/ --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
 
       - name: Type check with mypy
         run: |
@@ -62,15 +62,38 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Run Bandit Security Scan
-        uses: securecodewarrior/github-action-bandit@v1.0.1
+      - name: Install uv
+        uses: astral-sh/setup-uv@v4
         with:
-          config_file: .bandit
+          version: "latest"
+
+      - name: Set up Python
+        run: uv python install ${{ env.PYTHON_VERSION }}
+
+      - name: Install dependencies
+        run: uv sync --extra dev --extra test
+
+      - name: Run Bandit Security Scan
+        run: |
+          uv run bandit -r tools/ main.py -f json -o bandit-report.json || true
+          uv run bandit -r tools/ main.py
+
+      - name: Upload Bandit report
+        uses: actions/upload-artifact@v4
+        with:
+          name: bandit-report
+          path: bandit-report.json
 
       - name: Run Safety Check
         run: |
-          pip install safety
-          safety check
+          uv run safety check --json --output safety-report.json || true
+          uv run safety check
+
+      - name: Upload Safety report
+        uses: actions/upload-artifact@v4
+        with:
+          name: safety-report
+          path: safety-report.json
 
   quality:
     name: Code Quality

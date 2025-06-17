@@ -119,8 +119,8 @@ def parse_key_from_certificate(cert_path, password=None):
                     password = password.encode("utf-8")
 
             # 解析PFX/PKCS12文件
-            private_key, certificate, _ = (
-                pkcs12.load_key_and_certificates(pfx_data, password, default_backend())
+            private_key, certificate, _ = pkcs12.load_key_and_certificates(
+                pfx_data, password, default_backend()
             )
 
             # 处理私钥
@@ -225,11 +225,11 @@ def main():
 
         if result["publicKey"]:
             print("\n公钥 (Base64):")
-            print(result['publicKey'])
+            print(result["publicKey"])
 
         if result["privateKey"]:
             print("\n私钥 (Base64):")
-            print(result['privateKey'])
+            print(result["privateKey"])
 
     except ValueError as e:
         print(f"错误: {str(e)}")
