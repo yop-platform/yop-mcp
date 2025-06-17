@@ -11,7 +11,7 @@ import pytest
 # 添加项目根目录到Python路径
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from main import (
+from yop_mcp.main import (
     yeepay_yop_api_detail,
     yeepay_yop_download_cert,
     yeepay_yop_gen_key_pair,
@@ -137,7 +137,7 @@ class TestYOPMCPFunctions:
         # 应该转换为完整URL
         mock_download.assert_called_once()
 
-    @patch("main.gen_key_pair")
+    @patch("yop_mcp.main.gen_key_pair")
     def test_yeepay_yop_gen_key_pair(self, mock_gen_key_pair):
         """测试生成密钥对"""
         mock_gen_key_pair.return_value = {
@@ -153,7 +153,7 @@ class TestYOPMCPFunctions:
             algorithm="RSA", format="pkcs8", storage_type="file"
         )
 
-    @patch("main.download_cert")
+    @patch("yop_mcp.main.download_cert")
     def test_yeepay_yop_download_cert(self, mock_download_cert):
         """测试下载证书"""
         mock_download_cert.return_value = {
@@ -174,7 +174,7 @@ class TestYOPMCPFunctions:
         assert result["message"] == "证书下载成功"
         mock_download_cert.assert_called_once()
 
-    @patch("main.parse_certificates")
+    @patch("yop_mcp.main.parse_certificates")
     def test_yeepay_yop_parse_certificates(self, mock_parse_certificates):
         """测试解析证书"""
         mock_parse_certificates.return_value = {

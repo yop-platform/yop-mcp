@@ -1,6 +1,6 @@
 [project]
 name = "yop-mcp"
-version = "0.1.1"
+version = "0.1.2"
 description = "快速对接易宝支付开放平台(YOP)的 MCP Server"
 readme = "README.md"
 requires-python = ">=3.13"
