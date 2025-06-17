@@ -2,8 +2,8 @@
 
 [![Python Version](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
-[![Build Status](https://github.com/yop-platform/yop-mcp-python/workflows/Python%20package/badge.svg)](https://github.com/yop-platform/yop-mcp-python/actions)
-[![Code Quality](https://github.com/yop-platform/yop-mcp-python/workflows/CodeQL/badge.svg)](https://github.com/yop-platform/yop-mcp-python/actions)
+[![Build Status](https://github.com/yop-platform/yop-mcp/workflows/Python%20package/badge.svg)](https://github.com/yop-platform/yop-mcp/actions)
+[![Code Quality](https://github.com/yop-platform/yop-mcp/workflows/CodeQL/badge.svg)](https://github.com/yop-platform/yop-mcp/actions)
 [![MCP](https://img.shields.io/badge/MCP-Server-orange.svg)](https://modelcontextprotocol.io/)
 
 > 🚀 快速对接易宝支付开放平台(YOP)的 MCP Server
