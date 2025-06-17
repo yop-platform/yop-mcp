@@ -51,7 +51,9 @@
 
 ## 🚀 快速开始
 
-### 1. 安装 uv（推荐）
+### 方式一：直接使用 uvx（推荐）
+
+**1. 安装 uv**
 
 **Windows:**
 
@@ -65,23 +67,33 @@ pip install uv
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
-### 2. 获取代码
+**2. 直接运行**
+
+```bash
+uvx yop-mcp
+```
+
+这将自动从 PyPI 下载并运行最新版本的 yop-mcp。
+
+### 方式二：从源码安装
+
+**1. 获取代码**
 
 ```bash
 git clone http://gitlab.yeepay.com/yop/yop-mcp.git
 cd yop-mcp
 ```
 
-### 3. 安装依赖
+**2. 安装依赖**
 
 ```bash
 uv sync  # 这将创建虚拟环境并安装所需的包
 ```
 
-### 4. 运行服务器
+**3. 运行服务器**
 
 ```bash
-uv run main.py
+uv run yop_mcp/main.py
 ```
 
 服务器启动后，您将看到类似以下的输出：
@@ -92,11 +104,55 @@ MCP Server started on stdio transport
 
 ## 🔧 在 AI 工具中配置
 
-### Cursor 配置
+### 方式一：使用 uvx（推荐）
 
-Cursor 通常允许在其设置中指定自定义 MCP 服务器。您需要将 Cursor 指向这个正在运行的服务器。
+#### Cursor 配置
 
-#### 手动配置（通过 mcp.json）
+```json
+{
+  "mcpServers": {
+    "yop-mcp": {
+      "command": "uvx",
+      "args": ["yop-mcp"],
+      "timeout": 600,
+      "autoApprove": [
+        "yeepay_yop_overview",
+        "yeepay_yop_product_overview",
+        "yeepay_yop_product_detail_and_associated_apis",
+        "yeepay_yop_api_detail",
+        "yeepay_yop_java_sdk_user_guide",
+        "yeepay_yop_sdk_and_tools_guide",
+        "yeepay_yop_link_detail",
+        "yeepay_yop_gen_key_pair",
+        "yeepay_yop_download_cert",
+        "yeepay_yop_parse_certificates"
+      ]
+    }
+  }
+}
+```
+
+#### Claude Desktop 配置
+
+**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
+**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+
+```json
+{
+  "mcpServers": {
+    "yop-mcp": {
+      "command": "uvx",
+      "args": ["yop-mcp"]
+    }
+  }
+}
+```
+
+### 方式二：从源码运行
+
+如果您选择从源码安装，请使用以下配置：
+
+#### Cursor 配置
 
 请记得将路径 `/Users/your-username/path/to/yop-mcp` 更改为您系统上实际克隆仓库的路径。
 
@@ -109,7 +165,7 @@ Cursor 通常允许在其设置中指定自定义 MCP 服务器。您需要将 C
         "--directory",
         "/Users/your-username/path/to/yop-mcp",
         "run",
-        "main.py"
+        "yop_mcp/main.py"
       ],
       "timeout": 600,
       "autoApprove": [
@@ -129,19 +185,14 @@ Cursor 通常允许在其设置中指定自定义 MCP 服务器。您需要将 C
 }
 ```
 
-### Claude Desktop 配置
-
-在 Claude Desktop 中，您可以通过配置文件添加 MCP 服务器：
-
-**macOS:** `~/Library/Application Support/Claude/claude_desktop_config.json`
-**Windows:** `%APPDATA%\Claude\claude_desktop_config.json`
+#### Claude Desktop 配置
 
 ```json
 {
   "mcpServers": {
     "yop-mcp": {
       "command": "uv",
-      "args": ["--directory", "/path/to/yop-mcp", "run", "main.py"]
+      "args": ["--directory", "/path/to/yop-mcp", "run", "yop_mcp/main.py"]
     }
   }
 }
