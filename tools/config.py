@@ -22,10 +22,9 @@ class Config:
         """获取证书保存路径"""
         if algorithm.upper() == "RSA":
             return cls.RSA_CERT_SAVE_PATH
-        elif algorithm.upper() == "SM2":
+        if algorithm.upper() == "SM2":
             return cls.SM2_CERT_SAVE_PATH
-        else:
-            raise ValueError(f"不支持的算法: {algorithm}")
+        raise ValueError(f"不支持的算法: {algorithm}")
 
     @classmethod
     def is_supported_algorithm(cls, algorithm: str) -> bool:

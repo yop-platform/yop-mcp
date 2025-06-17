@@ -268,7 +268,7 @@ def yeepay_yop_parse_certificates(
             }
     """
     return parse_certificates(
-        algorithm=algorithm, pfxCert=pfx_cert, pubCert=pub_cert, pwd=pwd
+        algorithm=algorithm, pfx_cert=pfx_cert, pub_cert=pub_cert, pwd=pwd
     )
 
 
