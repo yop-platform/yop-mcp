@@ -1,5 +1,5 @@
 import json
-from typing import Any, Dict
+from typing import Any, Dict, Optional
 
 from mcp.server.fastmcp import FastMCP
 
@@ -12,7 +12,7 @@ mcp = FastMCP("yop-mcp")
 
 
 @mcp.tool()
-def yeepay_yop_overview():
+def yeepay_yop_overview() -> str:
     """
     通过此工具，可以了解易宝支付开放平台(YOP)的平台规范，接入流程，网站地图，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
 
@@ -24,7 +24,7 @@ def yeepay_yop_overview():
 
 
 @mcp.tool()
-def yeepay_yop_product_overview():
+def yeepay_yop_product_overview() -> str:
     """
     通过此工具，获取易宝支付开放平台(YOP)的产品能力概览，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
 
@@ -38,7 +38,7 @@ def yeepay_yop_product_overview():
 
 
 @mcp.tool()
-def yeepay_yop_product_detail_and_associated_apis(product_code: str):
+def yeepay_yop_product_detail_and_associated_apis(product_code: str) -> str:
     """
     通过此工具，获取易宝支付开放平台(YOP)指定产品的产品介绍，使用说明、相关的API接口列表，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
 
@@ -63,7 +63,7 @@ def yeepay_yop_product_detail_and_associated_apis(product_code: str):
 
 
 @mcp.tool()
-def yeepay_yop_api_detail(api_uri: str):
+def yeepay_yop_api_detail(api_uri: str) -> str:
     """
     通过此工具，获取易宝支付开放平台(YOP)的API接口的详细定义，包含基本信息、请求参数、请求示例、
     响应参数、响应示例、错误码、回调、示例代码等信息，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
@@ -130,7 +130,7 @@ def yeepay_yop_api_detail(api_uri: str):
 
 
 @mcp.tool()
-def yeepay_yop_sdk_and_tools_guide():
+def yeepay_yop_sdk_and_tools_guide() -> str:
     """
     通过此工具，获取易宝支付开放平台(YOP)提供的各种SDK和工具的使用说明，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
 
@@ -147,7 +147,7 @@ def yeepay_yop_sdk_and_tools_guide():
 
 
 @mcp.tool()
-def yeepay_yop_link_detail(url: str):
+def yeepay_yop_link_detail(url: str) -> str:
     """
     通过此工具，获取易宝支付开放平台(YOP)的各个子页面或者外部链接的详细内容，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
 
@@ -169,7 +169,7 @@ def yeepay_yop_link_detail(url: str):
 
 
 @mcp.tool()
-def yeepay_yop_java_sdk_user_guide():
+def yeepay_yop_java_sdk_user_guide() -> str:
     """
     通过此工具，获取易宝支付开放平台(YOP)的yop-java-sdk的使用说明，内容中包含链接时可以调用工具yeepay_yop_link_detail进一步获取其详细内容
 
@@ -196,7 +196,7 @@ def yeepay_yop_java_sdk_user_guide():
 
 
 @mcp.tool()
-def yeepay_yop_gen_key_pair(algorithm="RSA", key_format="pkcs8", storage_type="file"):
+def yeepay_yop_gen_key_pair(algorithm: str = "RSA", key_format: str = "pkcs8", storage_type: str = "file") -> Dict[str, Any]:
     """
     根据密钥算法生成非对称加密的密钥对（公钥和私钥），并保存到本地路径
 
@@ -248,8 +248,8 @@ def yeepay_yop_download_cert(
 
 @mcp.tool()
 def yeepay_yop_parse_certificates(
-    algorithm="RSA", pfx_cert=None, pub_cert=None, pwd=None
-):
+    algorithm: str = "RSA", pfx_cert: Optional[str] = None, pub_cert: Optional[str] = None, pwd: Optional[str] = None
+) -> Dict[str, Any]:
     """
     根据证书文件解析出Base64编码后的公钥或私钥字符串
 
@@ -292,7 +292,7 @@ def yeepay_yop_parse_certificates(
 #     return f"Please process this message: {message}"
 
 
-def main():
+def main() -> None:
     """Main entry point for the YOP MCP Server."""
     mcp.run(transport="stdio")
 

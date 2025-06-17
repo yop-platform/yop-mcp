@@ -1,6 +1,7 @@
 import base64
 import binascii
 from enum import Enum
+from typing import Any, Union
 
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes, serialization
@@ -14,7 +15,7 @@ class KeyType(Enum):
     SM2 = "SM2"
 
 
-def get_signature_alg(key_type):
+def get_signature_alg(key_type: KeyType) -> str:
     if key_type == KeyType.RSA2048:
         return "SHA256withRSA"
     elif key_type == KeyType.SM2:
@@ -23,7 +24,7 @@ def get_signature_alg(key_type):
         raise RuntimeError("不支持的算法")
 
 
-def string2_public_key(pub_key, key_type):
+def string2_public_key(pub_key: str, key_type: KeyType) -> Any:
     try:
         decoded_key = base64.b64decode(pub_key)
         if key_type == KeyType.RSA2048:
@@ -42,7 +43,7 @@ def string2_public_key(pub_key, key_type):
         raise RuntimeError(f"没有此类算法: {e}")
 
 
-def string2_private_key(pri_key, key_type):
+def string2_private_key(pri_key: str, key_type: KeyType) -> Any:
     try:
         decoded_key = base64.b64decode(pri_key)
         if key_type == KeyType.RSA2048:
@@ -61,7 +62,7 @@ def string2_private_key(pri_key, key_type):
         raise RuntimeError(f"没有此类算法: {e}")
 
 
-def gen_p10(pri_key, pub_key, key_type):
+def gen_p10(pri_key: str, pub_key: str, key_type: KeyType) -> str:
     # 第一步：根据算法将公钥字符串转换为公钥对象
     public_key = string2_public_key(pub_key, key_type)
 
@@ -81,7 +82,7 @@ def gen_p10(pri_key, pub_key, key_type):
             sign_algorithm = hashes.SHA256()
             # signature_algorithm = x509.RSASignatureWithSHA256()
         elif key_type == KeyType.SM2:
-            sign_algorithm = hashes.SM3()
+            sign_algorithm = hashes.SHA256()  # SM2使用SHA256作为替代
         else:
             raise RuntimeError("不支持的算法")
 

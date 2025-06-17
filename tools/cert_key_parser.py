@@ -5,6 +5,7 @@
 
 import base64
 import os
+from typing import Dict, Optional, Any
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -13,7 +14,7 @@ from cryptography.hazmat.primitives.serialization import pkcs12
 from cryptography.x509 import load_der_x509_certificate, load_pem_x509_certificate
 
 
-def parse_certificates(algorithm="RSA", pfx_cert=None, pub_cert=None, pwd=None):
+def parse_certificates(algorithm: str = "RSA", pfx_cert: Optional[str] = None, pub_cert: Optional[str] = None, pwd: Optional[str] = None) -> Dict[str, Any]:
     result = {"message": "解析成功", "privateKey": None, "publicKey": None}
 
     # 验证算法类型
@@ -52,17 +53,19 @@ def parse_certificates(algorithm="RSA", pfx_cert=None, pub_cert=None, pwd=None):
 
             # 检查算法类型是否匹配
             if pub_result["key_type"] != algorithm:
-                if "warning" in result["message"]:
+                current_message = result["message"]
+                if current_message and "warning" in current_message:
                     result[
                         "message"
-                    ] += f"，CER证书中检测到的算法类型({pub_result['key_type']})与指定的算法类型({algorithm})不匹配"
+                    ] = current_message + f"，CER证书中检测到的算法类型({pub_result['key_type']})与指定的算法类型({algorithm})不匹配"
                 else:
                     result["message"] = (
                         f"警告：CER证书中检测到的算法类型({pub_result['key_type']})与指定的算法类型({algorithm})不匹配"
                     )
         elif pub_cert:
-            if "warning" in result["message"] or pfx_cert and os.path.exists(pfx_cert):
-                result["message"] += f"，公钥证书文件不存在: {pub_cert}"
+            current_message = result["message"]
+            if (current_message and "warning" in current_message) or (pfx_cert and os.path.exists(pfx_cert)):
+                result["message"] = (current_message or "") + f"，公钥证书文件不存在: {pub_cert}"
             else:
                 result["message"] = f"公钥证书文件不存在: {pub_cert}"
                 return result
@@ -77,7 +80,7 @@ def parse_certificates(algorithm="RSA", pfx_cert=None, pub_cert=None, pwd=None):
         return result
 
 
-def parse_key_from_certificate(cert_path, password=None):
+def parse_key_from_certificate(cert_path: str, password: Optional[str] = None) -> Dict[str, Any]:
     """
     从证书文件解析出Base64编码的密钥字符串
 
@@ -114,13 +117,13 @@ def parse_key_from_certificate(cert_path, password=None):
                 pfx_data = f.read()
 
             # 解析PFX
+            password_bytes: Optional[bytes] = None
             if password:
-                if isinstance(password, str):
-                    password = password.encode("utf-8")
+                password_bytes = password.encode("utf-8")
 
             # 解析PFX/PKCS12文件
             private_key, certificate, _ = pkcs12.load_key_and_certificates(
-                pfx_data, password, default_backend()
+                pfx_data, password_bytes, default_backend()
             )
 
             # 处理私钥
@@ -209,7 +212,7 @@ def parse_key_from_certificate(cert_path, password=None):
         raise ValueError(f"解析证书失败: {str(e)}") from e
 
 
-def main():
+def main() -> None:
     try:
         # 注意替换为你实际的PFX文件路径和密码
         pfx_path = "./certs/rsa/4923287028.pfx"

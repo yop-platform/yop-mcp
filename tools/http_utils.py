@@ -95,8 +95,9 @@ class HttpUtils:
                 response.raise_for_status()
 
                 try:
-                    return response.json()
-                except:
+                    json_response: Dict[Any, Any] = response.json()
+                    return json_response
+                except Exception:
                     return response.text
         except httpx.HTTPStatusError as e:
             print(f"HTTP错误 {e.response.status_code}")
@@ -130,8 +131,9 @@ class HttpUtils:
                 response.raise_for_status()
 
                 try:
-                    return response.json()
-                except:
+                    json_response: Dict[Any, Any] = response.json()
+                    return json_response
+                except Exception:
                     return response.text
         except httpx.HTTPStatusError as e:
             print(f"HTTP错误 {e.response.status_code}")
@@ -145,7 +147,7 @@ class HttpUtils:
         get_url: str, request_param: Dict[Any, Any], request_header: Dict[Any, Any]
     ) -> str:
         # 验证URL安全性，只允许HTTP和HTTPS协议
-        if not get_url.startswith(('http://', 'https://')):
+        if not get_url.startswith(("http://", "https://")):
             raise ValueError("只支持HTTP和HTTPS协议的URL")
 
         param = ""
@@ -167,7 +169,7 @@ class HttpUtils:
         # 使用urllib.request.urlopen，但已验证URL安全性
         with urllib.request.urlopen(req) as response:  # nosec B310
             response_data = response.read().decode("utf-8")
-            return response_data
+            return str(response_data)
 
 
 # 为了兼容性，保留原始函数名称
