@@ -1,6 +1,6 @@
 [project]
 name = "yop-mcp"
-version = "0.1.0"
+version = "0.1.1"
 description = "快速对接易宝支付开放平台(YOP)的 MCP Server"
 readme = "README.md"
 requires-python = ">=3.13"
@@ -59,27 +59,23 @@ Issues = "http://gitlab.yeepay.com/yop/yop-mcp/-/issues"
 Changelog = "http://gitlab.yeepay.com/yop/yop-mcp/-/blob/main/CHANGELOG.md"
 
 [project.scripts]
-yop-mcp = "main:main"
+yop-mcp = "yop_mcp.main:main"
 
 [project.entry-points."mcp.servers"]
-yop-mcp = "main:mcp"
+yop-mcp = "yop_mcp.main:mcp"
 
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [tool.hatch.build.targets.wheel]
-packages = ["tools"]
-include = [
-    "main.py",
-    "config/*",
-    "docs/*",
-]
+packages = ["tools", "yop_mcp"]
 
 [tool.hatch.build.targets.sdist]
 include = [
     "main.py",
     "tools/",
+    "yop_mcp/",
     "config/",
     "docs/",
     "tests/",

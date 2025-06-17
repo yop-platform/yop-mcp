@@ -35,7 +35,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Implemented dependency vulnerability checking
 - Added pre-commit security hooks
 
-## [0.1.0] - 2024-01-XX
+## [0.1.1] - 2024-01-XX
 
 ### Added
 - Initial release of YOP MCP Server
@@ -71,7 +71,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## Release Notes
 
-### Version 0.1.0
+### Version 0.1.1
 This is the initial release of the YOP MCP Server, providing a comprehensive set of tools for integrating with the YeePay Open Platform (YOP). The server implements the Model Context Protocol (MCP) to enable seamless integration with AI development tools like Claude Desktop and Cursor.
 
 **Key Features:**
