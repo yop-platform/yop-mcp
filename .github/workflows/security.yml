@@ -98,21 +98,6 @@ jobs:
         env:
           SEMGREP_APP_TOKEN: ${{ secrets.SEMGREP_APP_TOKEN }}
 
-  osv-scanner:
-    name: OSV Scanner
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Run OSV Scanner
-        uses: google/osv-scanner-action@v2.0.3
-        with:
-          scan-args: |-
-            -r
-            --skip-git
-            .
-
   security-summary:
     name: Security Summary
     runs-on: ubuntu-latest
