@@ -144,6 +144,10 @@ class HttpUtils:
     def get_response(
         get_url: str, request_param: Dict[Any, Any], request_header: Dict[Any, Any]
     ) -> str:
+        # 验证URL安全性，只允许HTTP和HTTPS协议
+        if not get_url.startswith(('http://', 'https://')):
+            raise ValueError("只支持HTTP和HTTPS协议的URL")
+
         param = ""
         if request_param is not None:
             param_list = []
@@ -160,7 +164,8 @@ class HttpUtils:
             for key, value in request_header.items():
                 req.add_header(str(key), str(value))
 
-        with urllib.request.urlopen(req) as response:
+        # 使用urllib.request.urlopen，但已验证URL安全性
+        with urllib.request.urlopen(req) as response:  # nosec B310
             response_data = response.read().decode("utf-8")
             return response_data
 
