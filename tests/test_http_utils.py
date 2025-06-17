@@ -177,7 +177,7 @@ class TestHttpUtils:
         mock_client_instance.get.assert_called_once_with(
             "https://example.com/api",
             params={"param1": "value1", "param2": "value2"},
-            headers=headers
+            headers=headers,
         )
 
 

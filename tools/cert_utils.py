@@ -72,7 +72,9 @@ class CertUtils:
             raise Exception(f"加载公钥失败: {str(e)}")
 
     @staticmethod
-    def gen_p10(pri_key: str, pub_key: str, key_type: KeyType) -> str:  # pylint: disable=unused-argument
+    def gen_p10(
+        pri_key: str, pub_key: str, key_type: KeyType
+    ) -> str:  # pylint: disable=unused-argument
         """生成P10证书请求"""
         try:
             # 加载密钥
@@ -164,9 +166,7 @@ class CertUtils:
             raise RuntimeError(str(e))
 
     @staticmethod
-    def string2_private_key(
-        pri_key: str, key_type: KeyType
-    ) -> Any:
+    def string2_private_key(pri_key: str, key_type: KeyType) -> Any:
         """
         将私钥字符串转换为私钥对象
 
@@ -185,10 +185,16 @@ class CertUtils:
                 key_bytes, password=None, backend=default_backend()
             )
             # 验证密钥类型
-            if key_type == KeyType.RSA2048 and not isinstance(private_key, rsa.RSAPrivateKey):
+            if key_type == KeyType.RSA2048 and not isinstance(
+                private_key, rsa.RSAPrivateKey
+            ):
                 raise RuntimeError(f"Expected RSA private key, got {type(private_key)}")
-            elif key_type == KeyType.SM2 and not isinstance(private_key, ec.EllipticCurvePrivateKey):
-                raise RuntimeError(f"Expected EC private key for SM2, got {type(private_key)}")
+            elif key_type == KeyType.SM2 and not isinstance(
+                private_key, ec.EllipticCurvePrivateKey
+            ):
+                raise RuntimeError(
+                    f"Expected EC private key for SM2, got {type(private_key)}"
+                )
             return private_key
         except Exception as e:
             raise RuntimeError("No such algorithm.") from e
@@ -314,7 +320,7 @@ class CertUtils:
                         signature, test_message, padding.PKCS1v15(), hashes.SHA256()
                     )
                     return True
-                except:
+                except Exception:
                     return False
 
             elif key_type == KeyType.SM2:
@@ -542,9 +548,7 @@ def download_cert(
 
 
 def gen_key_pair(  # pylint: disable=too-many-arguments,too-many-positional-arguments,redefined-builtin
-    algorithm: str = "RSA",
-    format: str = "pkcs8",
-    storage_type: str = "file"
+    algorithm: str = "RSA", format: str = "pkcs8", storage_type: str = "file"
 ) -> Dict[str, Any]:
     try:
         private_key_str = None
@@ -659,8 +663,12 @@ def main() -> None:
     # 下载证书
     serial_no = "4931008761"
     auth_code = "A396G3AY47"
-    private_key = "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCj0pMOyEt0orX/+GPNMCueo/dZJC/KUqTtHHFXQB6Kc/vCQJSvWGPpIQEFiA68zzvjnhg3oKwT2vG9Gp2vmDC2V/zuCu2HyCi/mobMX/Mzch7O3beA/0A4d0ZzpyUKLRoq6PUb7jLqY+rnowFCNK4g8oLNA+sipJr3a1FFze9sBJKLFcPknSt7FtElgYIsXaXyHWJLHChusb99oZ8JZzZuA/DMRTdQUjf7fZoAq8gcXTtanZC6/2J07BAG8f0ZLc8qeEixApFE48xZ3p0N6brGq2eycs3tUMgcEiuvHRIB3p9TPFbLOdGR6D3dTz6EC87ImgchtVLA4VOuuEEsTZxFAgMBAAECggEAClijNvzJXy1jhy39x5iyOIusdHHHnuSHS/5O3i7Lfv0COmtvuH9BmBigguPr4lrIMoDqkKDSHVLnj4TdzpgzA2EdNT91buziPe+ZcdDhgC9F6NSx4TC9spM93NICkdj1XR5nVIM/rfPvgv+VdcPz91q5jg8gS4jPzK53bIwsActSIthwjmeT9QAUy7Nu3CTkLQTf1oJ5sV7AG+mJ28a1/l4Y/VBUWfplgNeahdcZ3Y5W3bc3yg82wD0aDyy+an+KVq9Kk3Jy/bUMBCzlujb7GAJRS/7Z6TLcRpSUYKnqKpD42IjOsAnZYYnouXxVbRbvUrn/8yVlapSP3wJ5LtRHIQKBgQDiT9jtMcf4W/99ekuIMp4w5FDQvxnr3y40aaxEl+qmiFHoznOlBN9cPNFR/yyCW14+nfF73GBpMcM1M96jSIkVhrWngSYBJ4LUtdOejb/iyl2hJrkIlxmfxUFXImdB1Dz6dbDvNo8/mTgeyykuBVycn33N3jsokjhNZ8TUYwGuKQKBgQC5UCtfNnFZrjYUSQomyBjfoNCo10L7UVOUUIgzdTloD4A4JdD5QdDHoOqK1sgWxMGa8pnN6ONUlntIh9DDUTvWI5ESNFAyVuXHIteaLACxo4XLGnfILcd83JuUVWXJ9qM6BJgCJ7bKasjYabnE8vD6w2hhxEpxb4r/v1pVJADIvQKBgFy1Nvkb3n44ObZORejaS4Fd1lldH6JHf+cKrv4+eWqVB3DmOeuMzm87nsgHT1VrVnUyQH1r7rbJIt2FjRu4mCeQUpP2zPnGFMtMXQ9jpAqkuaxNb5k8RMv1g2nNdx05c21qjvu/jvkPrDS5JvpqSeEDWQbflb5t/9B9xNz4XfTZAoGBAKtXiQK8IAo/nhkbf5tkIDuFQekbP/+HrrPP0l9h3/Zrfq5rqNEPHa+3BaXh+ZezzR8reTJ+RtOLX+osScaOcbkJobUnUY958XMysA8I6ItXGvo0OtSIH48/m0qHu1oGBd47KSG0/roiChqvhuiniFEUJIthJ0PDUs4ta6SVaXQxAoGAHBwLgpLtqU94IgkPe2/+p8R17l2BfbqwF6NUwxvjAM8uEd43eymGgfvHfUS580h7MDiNdrcXSntvlyokVejdJTufaCu6itNjVztYbwaJqkJ8vFHidlMvXKVtuvE8YAKrPm9CtwtQSm3zuwx2BNPE5AxXHcXiloks5kh7iNPaBN8="
-    public_key = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAo9KTDshLdKK1//hjzTArnqP3WSQvylKk7RxxV0AeinP7wkCUr1hj6SEBBYgOvM87454YN6CsE9rxvRqdr5gwtlf87grth8gov5qGzF/zM3Iezt23gP9AOHdGc6clCi0aKuj1G+4y6mPq56MBQjSuIPKCzQPrIqSa92tRRc3vbASSixXD5J0rexbRJYGCLF2l8h1iSxwobrG/faGfCWc2bgPwzEU3UFI3+32aAKvIHF07Wp2Quv9idOwQBvH9GS3PKnhIsQKRROPMWd6dDem6xqtnsnLN7VDIHBIrrx0SAd6fUzxWyznRkeg93U8+hAvOyJoHIbVSwOFTrrhBLE2cRQIDAQAB"
+    private_key = (
+        "MIIEvQIBADANBgkqhkiG9w0BAQEFAASCBKcwggSjAgEAAoIBAQCj0pMOyEt0orX/+GPNMCueo/dZJC/KUqTtHHFXQB6Kc/vCQJSvWGPpIQEFiA68zzvjnhg3oKwT2vG9Gp2vmDC2V/zuCu2HyCi/mobMX/Mzch7O3beA/0A4d0ZzpyUKLRoq6PUb7jLqY+rnowFCNK4g8oLNA+sipJr3a1FFze9sBJKLFcPknSt7FtElgYIsXaXyHWJLHChusb99oZ8JZzZuA/DMRTdQUjf7fZoAq8gcXTtanZC6/2J07BAG8f0ZLc8qeEixApFE48xZ3p0N6brGq2eycs3tUMgcEiuvHRIB3p9TPFbLOdGR6D3dTz6EC87ImgchtVLA4VOuuEEsTZxFAgMBAAECggEAClijNvzJXy1jhy39x5iyOIusdHHHnuSHS/5O3i7Lfv0COmtvuH9BmBigguPr4lrIMoDqkKDSHVLnj4TdzpgzA2EdNT91buziPe+ZcdDhgC9F6NSx4TC9spM93NICkdj1XR5nVIM/rfPvgv+VdcPz91q5jg8gS4jPzK53bIwsActSIthwjmeT9QAUy7Nu3CTkLQTf1oJ5sV7AG+mJ28a1/l4Y/VBUWfplgNeahdcZ3Y5W3bc3yg82wD0aDyy+an+KVq9Kk3Jy/bUMBCzlujb7GAJRS/7Z6TLcRpSUYKnqKpD42IjOsAnZYYnouXxVbRbvUrn/8yVlapSP3wJ5LtRHIQKBgQDiT9jtMcf4W/99ekuIMp4w5FDQvxnr3y40aaxEl+qmiFHoznOlBN9cPNFR/yyCW14+nfF73GBpMcM1M96jSIkVhrWngSYBJ4LUtdOejb/iyl2hJrkIlxmfxUFXImdB1Dz6dbDvNo8/mTgeyykuBVycn33N3jsokjhNZ8TUYwGuKQKBgQC5UCtfNnFZrjYUSQomyBjfoNCo10L7UVOUUIgzdTloD4A4JdD5QdDHoOqK1sgWxMGa8pnN6ONUlntIh9DDUTvWI5ESNFAyVuXHIteaLACxo4XLGnfILcd83JuUVWXJ9qM6BJgCJ7bKasjYabnE8vD6w2hhxEpxb4r/v1pVJADIvQKBgFy1Nvkb3n44ObZORejaS4Fd1lldH6JHf+cKrv4+eWqVB3DmOeuMzm87nsgHT1VrVnUyQH1r7rbJIt2FjRu4mCeQUpP2zPnGFMtMXQ9jpAqkuaxNb5k8RMv1g2nNdx05c21qjvu/jvkPrDS5JvpqSeEDWQbflb5t/9B9xNz4XfTZAoGBAKtXiQK8IAo/nhkbf5tkIDuFQekbP/+HrrPP0l9h3/Zrfq5rqNEPHa+3BaXh+ZezzR8reTJ+RtOLX+osScaOcbkJobUnUY958XMysA8I6ItXGvo0OtSIH48/m0qHu1oGBd47KSG0/roiChqvhuiniFEUJIthJ0PDUs4ta6SVaXQxAoGAHBwLgpLtqU94IgkPe2/+p8R17l2BfbqwF6NUwxvjAM8uEd43eymGgfvHfUS580h7MDiNdrcXSntvlyokVejdJTufaCu6itNjVztYbwaJqkJ8vFHidlMvXKVtuvE8YAKrPm9CtwtQSm3zuwx2BNPE5AxXHcXiloks5kh7iNPaBN8="
+    )
+    public_key = (
+        "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAo9KTDshLdKK1//hjzTArnqP3WSQvylKk7RxxV0AeinP7wkCUr1hj6SEBBYgOvM87454YN6CsE9rxvRqdr5gwtlf87grth8gov5qGzF/zM3Iezt23gP9AOHdGc6clCi0aKuj1G+4y6mPq56MBQjSuIPKCzQPrIqSa92tRRc3vbASSixXD5J0rexbRJYGCLF2l8h1iSxwobrG/faGfCWc2bgPwzEU3UFI3+32aAKvIHF07Wp2Quv9idOwQBvH9GS3PKnhIsQKRROPMWd6dDem6xqtnsnLN7VDIHBIrrx0SAd6fUzxWyznRkeg93U8+hAvOyJoHIbVSwOFTrrhBLE2cRQIDAQAB"
+    )
     print(
         download_cert(
             algorithm="RSA",

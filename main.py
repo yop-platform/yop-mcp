@@ -196,7 +196,9 @@ def yeepay_yop_java_sdk_user_guide() -> str:
 
 
 @mcp.tool()
-def yeepay_yop_gen_key_pair(algorithm: str = "RSA", key_format: str = "pkcs8", storage_type: str = "file") -> Dict[str, Any]:
+def yeepay_yop_gen_key_pair(
+    algorithm: str = "RSA", key_format: str = "pkcs8", storage_type: str = "file"
+) -> Dict[str, Any]:
     """
     根据密钥算法生成非对称加密的密钥对（公钥和私钥），并保存到本地路径
 
@@ -248,7 +250,10 @@ def yeepay_yop_download_cert(  # pylint: disable=too-many-arguments,too-many-pos
 
 @mcp.tool()
 def yeepay_yop_parse_certificates(
-    algorithm: str = "RSA", pfx_cert: Optional[str] = None, pub_cert: Optional[str] = None, pwd: Optional[str] = None
+    algorithm: str = "RSA",
+    pfx_cert: Optional[str] = None,
+    pub_cert: Optional[str] = None,
+    pwd: Optional[str] = None,
 ) -> Dict[str, Any]:
     """
     根据证书文件解析出Base64编码后的公钥或私钥字符串

@@ -98,9 +98,13 @@ if __name__ == "__main__":
     # key_type = KeyType.RSA2048
 
     # SM2密钥示例
-    PRI_KEY = ("MIGEAgEAMBAGByqGSM49AgEGBSuBBAAKBG0wawIBAQQgDQKlS7bO/Kk5ki6EX2jc7fwpBZdQSfLLkydhhpfNJp+h"
-               "RANCAASvzBZG6h3rpDOLy9Fx5yW3Pa6Od3CngeFK5f8uUlPHrtxLmNl0CHBserrsk/fFJanzIKpEEIisR7AOykJ2wqgr")
-    PUB_KEY = ("MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEr8wWRuod66Qzi8vRcecltz2ujndwp4HhSuX/LlJTx67cS5jZdAhwbHq67JP3"
-               "xSWp8yCqRBCIrEewDspCdsKoKw==")
+    PRI_KEY = (
+        "MIGEAgEAMBAGByqGSM49AgEGBSuBBAAKBG0wawIBAQQgDQKlS7bO/Kk5ki6EX2jc7fwpBZdQSfLLkydhhpfNJp+h"
+        "RANCAASvzBZG6h3rpDOLy9Fx5yW3Pa6Od3CngeFK5f8uUlPHrtxLmNl0CHBserrsk/fFJanzIKpEEIisR7AOykJ2wqgr"
+    )
+    PUB_KEY = (
+        "MFYwEAYHKoZIzj0CAQYFK4EEAAoDQgAEr8wWRuod66Qzi8vRcecltz2ujndwp4HhSuX/LlJTx67cS5jZdAhwbHq67JP3"
+        "xSWp8yCqRBCIrEewDspCdsKoKw=="
+    )
     KEY_TYPE = KeyType.SM2
     print(gen_p10(pri_key=PRI_KEY, pub_key=PUB_KEY, key_type=KEY_TYPE))

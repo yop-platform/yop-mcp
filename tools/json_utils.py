@@ -19,7 +19,9 @@ class JsonUtils:
         return json.loads(json_str)
 
     @staticmethod
-    def json_to_list(json_data: str, bean_type: Optional[type] = None) -> Optional[List[Any]]:
+    def json_to_list(
+        json_data: str, bean_type: Optional[type] = None
+    ) -> Optional[List[Any]]:
         try:
             # bean_type参数保留用于未来扩展
             _ = bean_type  # 避免pylint警告

@@ -5,7 +5,7 @@
 
 import base64
 import os
-from typing import Dict, Optional, Any
+from typing import Any, Dict, Optional
 
 from cryptography.hazmat.backends import default_backend
 from cryptography.hazmat.primitives import serialization
@@ -18,7 +18,7 @@ def parse_certificates(
     algorithm: str = "RSA",
     pfx_cert: Optional[str] = None,
     pub_cert: Optional[str] = None,
-    pwd: Optional[str] = None
+    pwd: Optional[str] = None,
 ) -> Dict[str, Any]:
     result = {"message": "解析成功", "privateKey": None, "publicKey": None}
 
@@ -60,17 +60,22 @@ def parse_certificates(
             if pub_result["key_type"] != algorithm:
                 current_message = result["message"]
                 if current_message and "warning" in current_message:
-                    result[
-                        "message"
-                    ] = current_message + f"，CER证书中检测到的算法类型({pub_result['key_type']})与指定的算法类型({algorithm})不匹配"
+                    result["message"] = (
+                        current_message
+                        + f"，CER证书中检测到的算法类型({pub_result['key_type']})与指定的算法类型({algorithm})不匹配"
+                    )
                 else:
                     result["message"] = (
                         f"警告：CER证书中检测到的算法类型({pub_result['key_type']})与指定的算法类型({algorithm})不匹配"
                     )
         elif pub_cert:
             current_message = result["message"]
-            if (current_message and "warning" in current_message) or (pfx_cert and os.path.exists(pfx_cert)):
-                result["message"] = (current_message or "") + f"，公钥证书文件不存在: {pub_cert}"
+            if (current_message and "warning" in current_message) or (
+                pfx_cert and os.path.exists(pfx_cert)
+            ):
+                result["message"] = (
+                    current_message or ""
+                ) + f"，公钥证书文件不存在: {pub_cert}"
             else:
                 result["message"] = f"公钥证书文件不存在: {pub_cert}"
                 return result
@@ -85,7 +90,9 @@ def parse_certificates(
         return result
 
 
-def parse_key_from_certificate(cert_path: str, password: Optional[str] = None) -> Dict[str, Any]:
+def parse_key_from_certificate(
+    cert_path: str, password: Optional[str] = None
+) -> Dict[str, Any]:
     """
     从证书文件解析出Base64编码的密钥字符串
 
@@ -160,7 +167,9 @@ def parse_key_from_certificate(cert_path: str, password: Optional[str] = None) -
 
                 # Base64编码
                 if private_bytes:
-                    result["private_key"] = base64.b64encode(private_bytes).decode("ascii")
+                    result["private_key"] = base64.b64encode(private_bytes).decode(
+                        "ascii"
+                    )
 
             # 处理公钥证书
             if certificate:

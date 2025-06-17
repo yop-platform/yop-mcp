@@ -28,7 +28,7 @@ test-watch: ## 监视文件变化并自动运行测试
 
 # 代码质量
 lint: ## 运行代码检查
-	uv run flake8 tools/ main.py
+	uv run flake8 tools/ main.py --max-line-length=127 --extend-ignore=E203,W503
 	uv run pylint tools/ main.py --disable=C0114,C0115,C0116 --max-line-length=127
 
 format: ## 格式化代码
