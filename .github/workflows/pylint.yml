@@ -20,8 +20,8 @@ jobs:
         with:
           version: "latest"
 
-      - name: Set up Python 3.13
-        run: uv python install 3.13
+      - name: Set up Python 3.10
+        run: uv python install 3.10
 
       - name: Install dependencies
         run: |

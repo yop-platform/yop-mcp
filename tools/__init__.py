@@ -10,7 +10,7 @@ This package contains utility modules for the YOP MCP Server:
 - json_utils: JSON processing utilities
 """
 
-__version__ = "0.1.2"
+__version__ = "0.1.3"
 __author__ = "YOP Team"
 __email__ = "yop@yeepay.com"
 

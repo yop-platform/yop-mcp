@@ -1,9 +1,9 @@
 [project]
 name = "yop-mcp"
-version = "0.1.2"
+version = "0.1.3"
 description = "快速对接易宝支付开放平台(YOP)的 MCP Server"
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.10"
 license = { text = "Apache-2.0" }
 authors = [
     { name = "YOP Team", email = "yop@yeepay.com" }
@@ -18,7 +18,9 @@ classifiers = [
     "License :: OSI Approved :: Apache Software License",
     "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
     "Topic :: Office/Business :: Financial :: Point-Of-Sale",
@@ -114,7 +116,7 @@ exclude_lines = [
 
 [tool.black]
 line-length = 88
-target-version = ['py313']
+target-version = ['py310']
 include = '\.pyi?$'
 extend-exclude = '''
 /(
@@ -137,7 +139,7 @@ line_length = 88
 known_first_party = ["tools"]
 
 [tool.mypy]
-python_version = "3.13"
+python_version = "3.10"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true

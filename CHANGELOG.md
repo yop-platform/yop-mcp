@@ -5,6 +5,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.1.3] - 2025-01-XX
+
+### Changed
+- **BREAKING**: Updated Python requirement from 3.13+ to 3.10+ for better compatibility
+- Updated Python version badge in README from 3.13+ to 3.10+
+- Updated CI/CD workflows to test against Python 3.10, 3.11, and 3.12
+- Updated development tools configuration to target Python 3.10
+- Fixed pre-commit configuration argument formatting
+
+### Fixed
+- Resolved installation issues for users with Python 3.10-3.12
+- Improved package compatibility with broader Python ecosystem
+
 ## [Unreleased]
 
 ### Added
@@ -21,7 +34,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 - Updated all GitHub Actions to latest versions (v4)
 - Migrated from pip to uv package manager for better performance
-- Updated Python requirement to 3.13+
 - Improved error handling and logging
 - Enhanced documentation structure and content
 

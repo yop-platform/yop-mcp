@@ -1,6 +1,6 @@
 # YOP MCP Server
 
-[![Python Version](https://img.shields.io/badge/python-3.13+-blue.svg)](https://www.python.org/downloads/)
+[![Python Version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
 [![License](https://img.shields.io/badge/license-Apache%202.0-green.svg)](LICENSE)
 [![Build Status](https://github.com/yop-platform/yop-mcp/workflows/Python%20package/badge.svg)](https://github.com/yop-platform/yop-mcp/actions)
 [![Code Quality](https://github.com/yop-platform/yop-mcp/workflows/CodeQL/badge.svg)](https://github.com/yop-platform/yop-mcp/actions)
@@ -45,7 +45,7 @@
 
 ## 📋 环境要求
 
-- **Python**: 3.13 或更高版本
+- **Python**: 3.10 或更高版本
 - **包管理器**: uv（推荐）或 pip
 - **操作系统**: Windows / macOS / Linux
 
@@ -422,9 +422,3 @@ yeepay_yop_gen_key_pair(algorithm="SM2", format="pkcs8", storage_type="file")
 ---
 
 *Made with ❤️ by YOP Team*
-
-
-
-
-
-
