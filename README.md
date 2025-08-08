@@ -51,6 +51,14 @@
 
 ## 🚀 快速开始
 
+### Installing via Smithery
+
+To install YOP Payment Platform Server for Claude Desktop automatically via [Smithery](https://smithery.ai/server/@yop-platform/yop-mcp):
+
+```bash
+npx -y @smithery/cli install @yop-platform/yop-mcp --client claude
+```
+
 ### 方式一：直接使用 uvx（推荐）
 
 **1. 安装 uv**
