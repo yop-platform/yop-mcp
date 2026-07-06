@@ -1,3 +1,5 @@
+[![MseeP.ai Security Assessment Badge](https://mseep.net/pr/yop-platform-yop-mcp-badge.png)](https://mseep.ai/app/yop-platform-yop-mcp)
+
 # YOP MCP Server
 
 [![Python Version](https://img.shields.io/badge/python-3.10+-blue.svg)](https://www.python.org/downloads/)
